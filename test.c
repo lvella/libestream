@@ -1,36 +1,92 @@
 #include <stdio.h>
 #include "rabbit.h"
 
+static void
+key_from_str(uint8_t *key, const char* str, int len)
+{
+  int j;
+  for(j = 0; j < len; ++j)
+    {
+      unsigned int tmp;
+      sscanf(str + 3*j, "%X", &tmp);
+      key[len-j-1] = tmp;
+    }
+}
+
+static void
+print_vals(const char *name, const uint8_t *vals, int len)
+{
+  printf("     %s = [%02X", name, vals[len-1]);
+  int j;
+  for(j = len-2; j >= 0; --j)
+    {
+      printf(" %02X", vals[j]);
+    }
+  puts("]");
+}
+
 int main()
 {
-  uint8_t keys[3][16] =
-    {{00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00},
-     {0x91, 0x28, 0x13, 0x29, 0x2E, 0x3D, 0x36, 0xFE, 0x3B, 0xFC, 0x62, 0xF1, 0xDC, 0x51, 0xC3, 0xAC},
-     {0x83, 0x95, 0x74, 0x15, 0x87, 0xE0, 0xC7, 0x33, 0xE9, 0xE9, 0xAB, 0x01, 0xC0, 0x9B, 0x00, 0x43}};
+  const char * char_keys[3] =
+    {"00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+     "91 28 13 29 2E 3D 36 FE 3B FC 62 F1 DC 51 C3 AC",
+     "83 95 74 15 87 E0 C7 33 E9 E9 AB 01 C0 9B 00 43" };
 
-  int i, j, k;
+  int i, j;
   for(i = 0; i < 3; ++i)
     {
-      rabbit_state state;
-      rabbit_init_master(&state, keys[i]);
+      uint8_t key[16];
 
-      printf("     key  = [%02X", keys[i][0]);
-      for(j = 1; j < 16; ++j)
-	{
-	  printf(" %02X", keys[i][j]);
-	}
-      puts("]");
+      key_from_str(key, char_keys[i], 16);
+
+      rabbit_state state;
+      rabbit_init_master(&state, key);
+
+      print_vals("key ", key, 16);
 
       for(j = 0; j < 3; ++j)
 	{
 	  uint8_t s[16];
+	  char name[5];
+
 	  rabbit_extract(&state, s);
 
-	  printf("     S[%d] = [%02X", j, s[0]);
-	  for(k = 1; k < 16; ++k) {
-	    printf(" %02X", s[k]);
-	  }
-	  puts("]");
+	  snprintf(name, 5, "S[%d]", j);
+	  print_vals(name, s, 16);
+	}
+      putchar('\n');
+    }
+
+  uint8_t mkey[16];
+  key_from_str(mkey, char_keys[0], 16);
+  
+  const char *ivs[3] =
+    {"00 00 00 00 00 00 00 00",
+     "C3 73 F5 75 C1 26 7E 59",
+     "A6 EB 56 1A D2 F4 17 27" };
+
+  rabbit_state mstate;
+  rabbit_init_master(&mstate, mkey);
+  print_vals("mkey", mkey, 16);
+
+  for(i = 0; i < 3; ++i)
+    {
+      rabbit_state ivstate;
+      uint8_t iv[8];
+      key_from_str(iv, ivs[i], 8);
+      print_vals("iv  ", iv, 8);
+
+      rabbit_init_iv(&ivstate, &mstate, iv);
+
+      for(j = 0; j < 3; ++j)
+	{
+	  uint8_t s[16];
+	  char name[5];
+
+	  rabbit_extract(&ivstate, s);
+
+	  snprintf(name, 5, "S[%d]", j);
+	  print_vals(name, s, 16);
 	}
       putchar('\n');
     }

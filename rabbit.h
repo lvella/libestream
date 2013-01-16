@@ -17,9 +17,11 @@ typedef struct
  * rabbit_init_iv().
  *
  * @param s The unintialized state.
- * @param key 16 bytes buffer of the 128-bit key
+ * @param key 16 bytes buffer of the 128-bit key. The buffer must be aligned
+ * to at least 4 bytes (depending on the plataform it may or may not work with
+ * unaligned memory).
  */
-void rabbit_init_master(rabbit_state *state, uint8_t *key);
+void rabbit_init_master(rabbit_state *state, const uint8_t *key);
 
 /** Initialize the Rabbit state as for encryption.
  *
@@ -31,13 +33,15 @@ void rabbit_init_master(rabbit_state *state, uint8_t *key);
  *
  * @param iv_state The output state, to be initialized with the IV.
  * @param master The master state, already initialized with the key.
- * @param iv 8 bytes buffer containing the IV.
+ * @param iv 8 bytes buffer containing the IV. Must be 4 byte aligned.
  */
-void rabbit_init_iv(rabbit_state *iv_state, rabbit_state *master, uint8_t *iv);
+void rabbit_init_iv(rabbit_state *iv_state, const rabbit_state *master,
+		    const uint8_t *iv);
 
 /** Performs one round of the algorithm.
  *
  * @param state The algorithm state.
  * @param stream A 16 byte buffer where the generated stream will be stored.
+ * Must be 4 byte aligned.
  */
 void rabbit_extract(rabbit_state *state, uint8_t *stream);
