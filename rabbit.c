@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "util.h"
 
 #include "rabbit.h"
 
@@ -30,12 +31,6 @@ g(uint32_t u, uint32_t v)
 {
   uint64_t square = (uint64_t)(u+v) * (uint64_t)(u+v);
   return (square >> 32) ^ square;
-}
-
-static uint32_t
-rotl(uint32_t x, unsigned int n)
-{
-  return (x << n) | (x >> (32-n));
 }
 
 static void
