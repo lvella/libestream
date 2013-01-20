@@ -1,6 +1,14 @@
+#include <string.h>
 #include "util.h"
 
 #include "sosemanuk.h"
+
+//#undef LITTLE_ENDIAN
+#define LITTLE_ENDIAN
+
+#ifdef LITTLE_ENDIAN
+#warning "Little endian code."
+#endif
 
 /* Multiplication by alpha: alpha * x = T32(x << 8) ^ mul_a[x >> 24] */
 static uint32_t mul_a[] = {
@@ -169,18 +177,166 @@ lfsr_step(sosemanuk_state *state)
   return st0;
 }
 
+static uint8_t
+sbox_apply(uint8_t sbox_idx, uint8_t input)
+{
+  // TODO: write this!
+
+  // This is the bogus part, because the article doesn't explain how to
+  // do it, it seems that the only thing to do is to copy-paste some
+  // pre-made boolean functions
+}
+
+static uint32_t
+sbox_apply_w32(uint8_t sbox_idx, uint32_t input)
+{
+  int i;
+  uint8_t *ptr = (uint8_t*)&input;
+  for(i = 0; i < 4; ++i)
+    ptr[i] = sbox_apply(sbox_idx, ptr[i]);
+
+  return input;
+}
+
 static void
 serpent1(uint8_t *in, uint8_t *out)
 {
-  static const uint8_t sbox[] =
-    {8, 6, 7, 9, 3, 12, 10, 15, 13, 1, 14, 4, 0, 11, 5, 2};
-
   int i;
-  for(i = 0; i < 16; ++i) {
-    out[i] =
-      ( sbox[in[i] >>   4] << 4)
-      | sbox[in[i] & 0xfu];
-  }
+  for(i = 0; i < 16; ++i)
+    out[i] = sbox_apply(2, in[i]);
+}
+
+void
+sosemanuk_init_key(sosemanuk_master_state *state,
+		   const uint8_t *key, uint8_t bitlength)
+{
+  uint32_t w[108];
+
+  uint32_t i;
+  int fullwords = bitlength / 32;
+  for(i = 0; i < fullwords; ++i)
+    {
+      w[i] =
+#ifdef LITTLE_ENDIAN
+	((uint32_t*)key)[i];
+#else
+          (uint32_t)key[i*4+3] << 24
+	| (uint32_t)key[i*4+2] << 16
+	| (uint32_t)key[i*4+1] << 8
+	| (uint32_t)key[i*4];
+#endif
+    }
+
+  int partial = bitlength % 32;
+  if(partial)
+    {
+      uint32_t tmp = 0;
+
+      int j;
+      int fullbytes = partial / 8;
+      for(j = 0; j < fullbytes; ++j)
+	tmp |= (uint32_t)key[i*4 + j] << (j*8);
+
+      int bitpartial = partial % 8;
+      if(bitpartial)
+	{
+	  uint8_t extra_bit = 1u << bitpartial;
+	  tmp |= (uint32_t)((key[i*4 + j] & (extra_bit - 1)) | extra_bit)
+	    << (j*8);
+	}
+      else
+	{
+	  tmp |= 1u << partial;
+	}
+
+      w[i++] = tmp;
+    }
+
+  for(; i < 8; ++i)
+    w[i] = 0;
+
+  for(; i < 108; ++i)
+    w[i] = rotl(w[i - 8] ^ w[i - 5] ^ w[i - 3] ^ w[i - 1] ^ 0x9e3779b9u ^ (i-8),
+		11);
+
+  for(i = 0; i < 25; ++i)
+    {
+      uint8_t sbox_idx = 7 - (i+4) % 8;
+      int j;
+      for(j = 0; j < 4; ++j)
+	state->k[i*4 + j] = sbox_apply_w32(sbox_idx, w[i*4 + j + 8]);
+    }
+}
+
+static void
+serpent_round(const sosemanuk_master_state *master, int idx, uint32_t *data)
+{
+  int i;
+  for(i = 0; i < 4; ++i)
+    data[i] = sbox_apply_w32(idx % 8, data[i] ^ master->k[idx*4 + i]);
+
+  data[0] = rotl(data[0], 13);
+  data[2] = rotl(data[2], 3);
+  data[1] = data[1] ^ data[0] ^ data[2];
+  data[3] = data[3] ^ data[2] ^ (data[0] << 3);
+  data[1] = rotl(data[1], 1);
+  data[3] = rotl(data[3], 7);
+  data[0] = data[0] ^ data[1] ^ data[3];
+  data[2] = data[2] ^ data[3] ^ (data[1] << 7);
+  data[0] = rotl(data[0], 5);
+  data[2] = rotl(data[2], 22);
+}
+
+void
+sosemanuk_init_iv(sosemanuk_state *iv_state,
+		  const sosemanuk_master_state *master,
+		  const uint8_t *iv)
+{
+  int i;
+
+  uint32_t *s = iv_state->s;
+  uint32_t *r = iv_state->r;
+
+  uint32_t data[4];
+#ifdef LITTLE_ENDIAN
+  memcpy(data, iv, 16);
+#else
+  for(i = 0; i < 4; ++i)
+    {
+      data[i] =
+	  (uint32_t)iv[i*4+3] << 24
+	| (uint32_t)iv[i*4+2] << 16
+	| (uint32_t)iv[i*4+1] << 8
+	| (uint32_t)iv[i*4];
+    }
+#endif
+
+  for(i = 0; i < 12; ++i)
+    serpent_round(master, i, data);
+
+  s[9] = data[0];
+  s[8] = data[1];
+  s[7] = data[2];
+  s[6] = data[3];
+
+  for(; i < 18; ++i)
+    serpent_round(master, i, data);
+
+  r[0] = data[0];
+  r[1] = data[2];
+
+  s[5] = data[3];
+  s[4] = data[1];
+
+  for(; i < 24; ++i)
+    serpent_round(master, i, data);
+
+  const uint32_t *sk = master->k;
+
+  s[3] = data[0] ^ sk[96];
+  s[2] = data[1] ^ sk[97];
+  s[1] = data[2] ^ sk[98];
+  s[0] = data[1] ^ sk[99];
 }
 
 void

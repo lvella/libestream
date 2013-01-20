@@ -84,7 +84,7 @@ cat16(uint16_t a, uint16_t b)
 }
 
 void
-rabbit_init_master(rabbit_state *s, const uint8_t *key)
+rabbit_init_key(rabbit_state *s, const uint8_t *key)
 {
   int i;
 

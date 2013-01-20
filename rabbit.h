@@ -9,7 +9,7 @@ typedef struct
   uint8_t carry;
 } rabbit_state;
 
-/** Initialize the Rabbit state as master state.
+/** Initialize the Rabbit master state with key.
  *
  * The state initialized by this function can be used directly in the
  * encryption/decryption process, or can be used to generate other encription
@@ -21,11 +21,11 @@ typedef struct
  * to at least 4 bytes (depending on the plataform it may or may not work with
  * unaligned memory).
  */
-void rabbit_init_master(rabbit_state *state, const uint8_t *key);
+void rabbit_init_key(rabbit_state *state, const uint8_t *key);
 
 /** Initialize the Rabbit state as for encryption.
  *
- * The master state initialized in rabbit_init_master() can be reused many
+ * The master state initialized in rabbit_init_key() can be reused many
  * times to generate different encryption states based on different
  * Initialization Vectors (IVs).
  *
