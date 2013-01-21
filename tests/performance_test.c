@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "rabbit.h"
+#include "sosemanuk.h"
 
 unsigned char key[16] = {0x91, 0x28, 0x13, 0x29, 0x2E, 0x3D, 0x36, 0xFE, 0x3B, 0xFC, 0x62, 0xF1, 0xDC, 0x51, 0xC3, 0xAC};
 
@@ -26,7 +27,7 @@ static void rabbit_test()
   unsigned char stream[4096];
   int i;
 
-  rabbit_init_master(&state, key);
+  rabbit_init_key(&state, key);
 
   for(i = 0; i < 10000; ++i) {
     int c;
@@ -35,6 +36,26 @@ static void rabbit_test()
 
     fwrite(stream, 1, 4096, stdout);
   }
+}
+
+static void sosemanuk_test()
+{
+    sosemanuk_master_state mstate;
+    sosemanuk_init_key(&mstate, key, 128);
+
+    sosemanuk_state ivstate;
+    sosemanuk_init_iv(&ivstate, &mstate, key);
+
+    unsigned char stream[4096];
+    int i;
+
+    for(i = 0; i < 10000; ++i) {
+      int c;
+      for(c = 0; c < 4096; c += 16)
+	sosemanuk_extract(&ivstate, &stream[c]);
+
+      fwrite(stream, 1, 4096, stdout);
+    }
 }
 
 double
@@ -57,4 +78,9 @@ main()
   rabbit_test();
   clock_gettime(CLOCK_MONOTONIC_RAW, &fin);
   fprintf(stderr, "Rabbit time: %f\n", timespecdiff(&fin, &ini));
+
+  clock_gettime(CLOCK_MONOTONIC_RAW, &ini);
+  sosemanuk_test();
+  clock_gettime(CLOCK_MONOTONIC_RAW, &fin);
+  fprintf(stderr, "Sosemanuk time: %f\n", timespecdiff(&fin, &ini));
 }
