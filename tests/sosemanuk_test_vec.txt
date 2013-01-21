@@ -1,0 +1,1292 @@
+=====================================================
+Detailed test vector 1:
+key = A7C083FEB7
+  -> 00000000 00000000 00000000 00000000 00000000 00000000 000001B7 FE83C0A7
+Serpent24 subkey  0: 20D790C9 FDCEE217 39D1A3CB 4194A3D8
+Serpent24 subkey  1: F30FDEB8 19F8F027 7E7FB7DA 1FA3DD5E
+Serpent24 subkey  2: A2B3CA0D A608DD34 52CD2160 340303F7
+Serpent24 subkey  3: BF9BA0E6 803C80C0 E25EC89A 48FCD365
+Serpent24 subkey  4: 2F2A344A 5491A3CB 8599FCD7 63CBC7CF
+Serpent24 subkey  5: 53EB6215 0CC10ABE 5175D12B 40A3F35B
+Serpent24 subkey  6: CA097A86 270A12C9 B723B943 BF629F6E
+Serpent24 subkey  7: 1AB77A3C 6CD79B92 95EDBD6B E9A2EBF1
+Serpent24 subkey  8: 5000B524 542716FC 87F68FA7 693CA3BA
+Serpent24 subkey  9: 6C401BBA 085938BD 33514EE0 12A397EB
+Serpent24 subkey 10: A9A00A61 03FE670B 51FD7443 A9128E17
+Serpent24 subkey 11: 9D7F9723 F32970CE 771C7A52 1FD02F44
+Serpent24 subkey 12: 3B61C167 29813189 74B6D759 1F90F485
+Serpent24 subkey 13: 155EEC5F 640DD29A F0C2AABB B0ABD813
+Serpent24 subkey 14: 8AB8640F B56486E4 6E2C728F 20693008
+Serpent24 subkey 15: 86D6E868 4974836B A2D1FA43 036B4C85
+Serpent24 subkey 16: EA42E3EE 50A8DF87 D80208F3 96DFD4D2
+Serpent24 subkey 17: A94CB148 E4BC01C9 B2AEAFA5 4AA6B43E
+Serpent24 subkey 18: 571A98E2 7FFC2FE4 0C73401D 637C3A41
+Serpent24 subkey 19: 986CE272 4DECAD5D 936CB09A E985D246
+Serpent24 subkey 20: 6D887658 9B1281C3 4108543A E03728C2
+Serpent24 subkey 21: 98CE8777 A707256B DA7EA850 F49ED6C1
+Serpent24 subkey 22: 7977404A 15179AC8 FEF930D8 CA8670E1
+Serpent24 subkey 23: B851CC7F 5F9C535A E10F4325 676E2CC3
+Serpent24 subkey 24: 22EB4633 7AF96010 0C08916B 6501C63B
+IV = 00112233445566778899AABBCCDDEEFF
+  -> FFEEDDCC BBAA9988 77665544 33221100
+Initial LFSR state:
+      s1  = 2FAF455D
+      s2  = 80D3E080
+      s3  = 4B328E0B
+      s4  = E567585A
+      s5  = AD57DCB8
+      s6  = F9A0DE90
+      s7  = 442E6DF7
+      s8  = 038FB10F
+      s9  = 63175EC3
+      s10 = 7542A0D5
+Initial FSM state:  r1 = 2F98BBB2   r2 = A464FCDA
+New FSM state:  r1 = 2538DD5A   r2 = A0EBEF23
+New LFSR state:
+   dropped (s_t): 2FAF455D
+         s_t+1  = 80D3E080
+         s_t+2  = 4B328E0B
+         s_t+3  = E567585A
+         s_t+4  = AD57DCB8
+         s_t+5  = F9A0DE90
+         s_t+6  = 442E6DF7
+         s_t+7  = 038FB10F
+         s_t+8  = 63175EC3
+         s_t+9  = 7542A0D5
+         s_t+10 = EAA903FD
+Intermediate output: 3A90910C
+New FSM state:  r1 = EC1E7D2E   r2 = 6A1DBB28
+New LFSR state:
+   dropped (s_t): 80D3E080
+         s_t+1  = 4B328E0B
+         s_t+2  = E567585A
+         s_t+3  = AD57DCB8
+         s_t+4  = F9A0DE90
+         s_t+5  = 442E6DF7
+         s_t+6  = 038FB10F
+         s_t+7  = 63175EC3
+         s_t+8  = 7542A0D5
+         s_t+9  = EAA903FD
+         s_t+10 = 339D4508
+Intermediate output: BCDA3A03
+New FSM state:  r1 = 4F851382   r2 = 48AB2169
+New LFSR state:
+   dropped (s_t): 4B328E0B
+         s_t+1  = E567585A
+         s_t+2  = AD57DCB8
+         s_t+3  = F9A0DE90
+         s_t+4  = 442E6DF7
+         s_t+5  = 038FB10F
+         s_t+6  = 63175EC3
+         s_t+7  = 7542A0D5
+         s_t+8  = EAA903FD
+         s_t+9  = 339D4508
+         s_t+10 = 6EF6D2F4
+Intermediate output: CB8979E3
+New FSM state:  r1 = F602FE21   r2 = 20574756
+New LFSR state:
+   dropped (s_t): E567585A
+         s_t+1  = AD57DCB8
+         s_t+2  = F9A0DE90
+         s_t+3  = 442E6DF7
+         s_t+4  = 038FB10F
+         s_t+5  = 63175EC3
+         s_t+6  = 7542A0D5
+         s_t+7  = EAA903FD
+         s_t+8  = 339D4508
+         s_t+9  = 6EF6D2F4
+         s_t+10 = 24E5B77B
+Intermediate output: 44AE9643
+Serpent1 input:  44AE9643 CB8979E3 BCDA3A03 3A90910C
+Serpent1 output: BE362F10 0E6E070F 8DC37AAC 397DC4A3
+Stream output: FE81D2162C9A100D04895C454A77515B
+New FSM state:  r1 = B7AD53BA   r2 = BF52F3E4
+New LFSR state:
+   dropped (s_t): AD57DCB8
+         s_t+1  = F9A0DE90
+         s_t+2  = 442E6DF7
+         s_t+3  = 038FB10F
+         s_t+4  = 63175EC3
+         s_t+5  = 7542A0D5
+         s_t+6  = EAA903FD
+         s_t+7  = 339D4508
+         s_t+8  = 6EF6D2F4
+         s_t+9  = 24E5B77B
+         s_t+10 = 8D82C555
+Intermediate output: 63C1F8D1
+New FSM state:  r1 = 038161DB   r2 = 224C0B24
+New LFSR state:
+   dropped (s_t): F9A0DE90
+         s_t+1  = 442E6DF7
+         s_t+2  = 038FB10F
+         s_t+3  = 63175EC3
+         s_t+4  = 7542A0D5
+         s_t+5  = EAA903FD
+         s_t+6  = 339D4508
+         s_t+7  = 6EF6D2F4
+         s_t+8  = 24E5B77B
+         s_t+9  = 8D82C555
+         s_t+10 = C272B891
+Intermediate output: B3482C14
+New FSM state:  r1 = B0597F7E   r2 = 5556FEC1
+New LFSR state:
+   dropped (s_t): 442E6DF7
+         s_t+1  = 038FB10F
+         s_t+2  = 63175EC3
+         s_t+3  = 7542A0D5
+         s_t+4  = EAA903FD
+         s_t+5  = 339D4508
+         s_t+6  = 6EF6D2F4
+         s_t+7  = 24E5B77B
+         s_t+8  = 8D82C555
+         s_t+9  = C272B891
+         s_t+10 = 06FF479D
+Intermediate output: 279AC6CE
+New FSM state:  r1 = B86E5D84   r2 = BF2B393D
+New LFSR state:
+   dropped (s_t): 038FB10F
+         s_t+1  = 63175EC3
+         s_t+2  = 7542A0D5
+         s_t+3  = EAA903FD
+         s_t+4  = 339D4508
+         s_t+5  = 6EF6D2F4
+         s_t+6  = 24E5B77B
+         s_t+7  = 8D82C555
+         s_t+8  = C272B891
+         s_t+9  = 06FF479D
+         s_t+10 = 85413C7A
+Intermediate output: 00469C1C
+Serpent1 input:  00469C1C 279AC6CE B3482C14 63C1F8D1
+Serpent1 output: 2BACE1E0 F3C54CD5 F7198203 B714B606
+Stream output: BE6A431A935CB90E2221EBB7EF502328
+New FSM state:  r1 = 346DDA12   r2 = 352D4E04
+New LFSR state:
+   dropped (s_t): 63175EC3
+         s_t+1  = 7542A0D5
+         s_t+2  = EAA903FD
+         s_t+3  = 339D4508
+         s_t+4  = 6EF6D2F4
+         s_t+5  = 24E5B77B
+         s_t+6  = 8D82C555
+         s_t+7  = C272B891
+         s_t+8  = 06FF479D
+         s_t+9  = 85413C7A
+         s_t+10 = E4F507C2
+Intermediate output: 8C825888
+New FSM state:  r1 = 1FD65201   r2 = E7663F7E
+New LFSR state:
+   dropped (s_t): 7542A0D5
+         s_t+1  = EAA903FD
+         s_t+2  = 339D4508
+         s_t+3  = 6EF6D2F4
+         s_t+4  = 24E5B77B
+         s_t+5  = 8D82C555
+         s_t+6  = C272B891
+         s_t+7  = 06FF479D
+         s_t+8  = 85413C7A
+         s_t+9  = E4F507C2
+         s_t+10 = F9F76C02
+Intermediate output: E3AD66BD
+New FSM state:  r1 = BECE8248   r2 = EBC88384
+New LFSR state:
+   dropped (s_t): EAA903FD
+         s_t+1  = 339D4508
+         s_t+2  = 6EF6D2F4
+         s_t+3  = 24E5B77B
+         s_t+4  = 8D82C555
+         s_t+5  = C272B891
+         s_t+6  = 06FF479D
+         s_t+7  = 85413C7A
+         s_t+8  = E4F507C2
+         s_t+9  = F9F76C02
+         s_t+10 = 653E7E3D
+Intermediate output: 530D6DCE
+New FSM state:  r1 = 5ABF5678   r2 = 2573FC19
+New LFSR state:
+   dropped (s_t): 339D4508
+         s_t+1  = 6EF6D2F4
+         s_t+2  = 24E5B77B
+         s_t+3  = 8D82C555
+         s_t+4  = C272B891
+         s_t+5  = 06FF479D
+         s_t+6  = 85413C7A
+         s_t+7  = E4F507C2
+         s_t+8  = F9F76C02
+         s_t+9  = 653E7E3D
+         s_t+10 = 992F5C91
+Intermediate output: 9A8E28AC
+Serpent1 input:  9A8E28AC 530D6DCE E3AD66BD 8C825888
+Serpent1 output: 4151CC20 A6AC7235 65215FFB 2A2E6B57
+Stream output: 943539492EFF6310C871054C2889CC72
+New FSM state:  r1 = 4A59B394   r2 = CE22A400
+New LFSR state:
+   dropped (s_t): 6EF6D2F4
+         s_t+1  = 24E5B77B
+         s_t+2  = 8D82C555
+         s_t+3  = C272B891
+         s_t+4  = 06FF479D
+         s_t+5  = 85413C7A
+         s_t+6  = E4F507C2
+         s_t+7  = F9F76C02
+         s_t+8  = 653E7E3D
+         s_t+9  = 992F5C91
+         s_t+10 = 3B532502
+Intermediate output: 2DABB425
+New FSM state:  r1 = 5BA56955   r2 = 88728643
+New LFSR state:
+   dropped (s_t): 24E5B77B
+         s_t+1  = 8D82C555
+         s_t+2  = C272B891
+         s_t+3  = 06FF479D
+         s_t+4  = 85413C7A
+         s_t+5  = E4F507C2
+         s_t+6  = F9F76C02
+         s_t+7  = 653E7E3D
+         s_t+8  = 992F5C91
+         s_t+9  = 3B532502
+         s_t+10 = 6C34A3E5
+Intermediate output: 1E8A0814
+New FSM state:  r1 = 819423D6   r2 = 9AB829CA
+New LFSR state:
+   dropped (s_t): 8D82C555
+         s_t+1  = C272B891
+         s_t+2  = 06FF479D
+         s_t+3  = 85413C7A
+         s_t+4  = E4F507C2
+         s_t+5  = F9F76C02
+         s_t+6  = 653E7E3D
+         s_t+7  = 992F5C91
+         s_t+8  = 3B532502
+         s_t+9  = 6C34A3E5
+         s_t+10 = A3B30DE1
+Intermediate output: 7770EE71
+New FSM state:  r1 = A1B77167   r2 = 0CAE6D77
+New LFSR state:
+   dropped (s_t): C272B891
+         s_t+1  = 06FF479D
+         s_t+2  = 85413C7A
+         s_t+3  = E4F507C2
+         s_t+4  = F9F76C02
+         s_t+5  = 653E7E3D
+         s_t+6  = 992F5C91
+         s_t+7  = 3B532502
+         s_t+8  = 6C34A3E5
+         s_t+9  = A3B30DE1
+         s_t+10 = B782C41E
+Intermediate output: 49C4123F
+Serpent1 input:  49C4123F 7770EE71 1E8A0814 2DABB425
+Serpent1 output: B72EADAB 2CA5A41E 17114861 051E507B
+Stream output: 8F82E86B1AFFF4334B6127A13A155C75
+New FSM state:  r1 = 33A09F12   r2 = B5BF68B7
+New LFSR state:
+   dropped (s_t): 06FF479D
+         s_t+1  = 85413C7A
+         s_t+2  = E4F507C2
+         s_t+3  = F9F76C02
+         s_t+4  = 653E7E3D
+         s_t+5  = 992F5C91
+         s_t+6  = 3B532502
+         s_t+7  = 6C34A3E5
+         s_t+8  = A3B30DE1
+         s_t+9  = B782C41E
+         s_t+10 = C532772B
+Intermediate output: 5E9C0B87
+New FSM state:  r1 = 9AB47079   r2 = 8897BF13
+New LFSR state:
+   dropped (s_t): 85413C7A
+         s_t+1  = E4F507C2
+         s_t+2  = F9F76C02
+         s_t+3  = 653E7E3D
+         s_t+4  = 992F5C91
+         s_t+5  = 3B532502
+         s_t+6  = 6C34A3E5
+         s_t+7  = A3B30DE1
+         s_t+8  = B782C41E
+         s_t+9  = C532772B
+         s_t+10 = 20B4E9A9
+Intermediate output: D77158B7
+New FSM state:  r1 = C55CDA3C   r2 = 91A727E7
+New LFSR state:
+   dropped (s_t): E4F507C2
+         s_t+1  = F9F76C02
+         s_t+2  = 653E7E3D
+         s_t+3  = 992F5C91
+         s_t+4  = 3B532502
+         s_t+5  = 6C34A3E5
+         s_t+6  = A3B30DE1
+         s_t+7  = B782C41E
+         s_t+8  = C532772B
+         s_t+9  = 20B4E9A9
+         s_t+10 = BF4398F7
+Intermediate output: 77B6E402
+New FSM state:  r1 = F6E5A624   r2 = FBB5D224
+New LFSR state:
+   dropped (s_t): F9F76C02
+         s_t+1  = 653E7E3D
+         s_t+2  = 992F5C91
+         s_t+3  = 3B532502
+         s_t+4  = 6C34A3E5
+         s_t+5  = A3B30DE1
+         s_t+6  = B782C41E
+         s_t+7  = C532772B
+         s_t+8  = 20B4E9A9
+         s_t+9  = BF4398F7
+         s_t+10 = FA49A560
+Intermediate output: 4D9CED3F
+Serpent1 input:  4D9CED3F 77B6E402 D77158B7 5E9C0B87
+Serpent1 output: 12A400F8 93415A3D F6F71232 BBCF5188
+Stream output: 151630BD482EB673FF5DB477FA6C53EB
+New FSM state:  r1 = 94E52EB5   r2 = AC9B7E48
+New LFSR state:
+   dropped (s_t): 653E7E3D
+         s_t+1  = 992F5C91
+         s_t+2  = 3B532502
+         s_t+3  = 6C34A3E5
+         s_t+4  = A3B30DE1
+         s_t+5  = B782C41E
+         s_t+6  = C532772B
+         s_t+7  = 20B4E9A9
+         s_t+8  = BF4398F7
+         s_t+9  = FA49A560
+         s_t+10 = A08FEAB4
+Intermediate output: 23B5AA5D
+New FSM state:  r1 = 6DB5FEAA   r2 = E8FAF998
+New LFSR state:
+   dropped (s_t): 992F5C91
+         s_t+1  = 3B532502
+         s_t+2  = 6C34A3E5
+         s_t+3  = A3B30DE1
+         s_t+4  = B782C41E
+         s_t+5  = C532772B
+         s_t+6  = 20B4E9A9
+         s_t+7  = BF4398F7
+         s_t+8  = FA49A560
+         s_t+9  = A08FEAB4
+         s_t+10 = 3EC36A76
+Intermediate output: E6BF10C6
+New FSM state:  r1 = 552F9D7D   r2 = 4E8A5321
+New LFSR state:
+   dropped (s_t): 3B532502
+         s_t+1  = 6C34A3E5
+         s_t+2  = A3B30DE1
+         s_t+3  = B782C41E
+         s_t+4  = C532772B
+         s_t+5  = 20B4E9A9
+         s_t+6  = BF4398F7
+         s_t+7  = FA49A560
+         s_t+8  = A08FEAB4
+         s_t+9  = 3EC36A76
+         s_t+10 = 45D470B5
+Intermediate output: DD7954D2
+New FSM state:  r1 = EBFABAB8   r2 = 56EAB5F5
+New LFSR state:
+   dropped (s_t): 6C34A3E5
+         s_t+1  = A3B30DE1
+         s_t+2  = B782C41E
+         s_t+3  = C532772B
+         s_t+4  = 20B4E9A9
+         s_t+5  = BF4398F7
+         s_t+6  = FA49A560
+         s_t+7  = A08FEAB4
+         s_t+8  = 3EC36A76
+         s_t+9  = 45D470B5
+         s_t+10 = 241BF642
+Intermediate output: 67259E98
+Serpent1 input:  67259E98 DD7954D2 E6BF10C6 23B5AA5D
+Serpent1 output: 81980176 661630C1 997B6053 5DD2DADC
+Stream output: E1A4EC38C23C5400C315455D93A2ACED
+New FSM state:  r1 = 0E6D7A13   r2 = 7E618464
+New LFSR state:
+   dropped (s_t): A3B30DE1
+         s_t+1  = B782C41E
+         s_t+2  = C532772B
+         s_t+3  = 20B4E9A9
+         s_t+4  = BF4398F7
+         s_t+5  = FA49A560
+         s_t+6  = A08FEAB4
+         s_t+7  = 3EC36A76
+         s_t+8  = 45D470B5
+         s_t+9  = 241BF642
+         s_t+10 = 32DFF7D0
+Intermediate output: 4CE8F431
+New FSM state:  r1 = 5F8B05CD   r2 = 88BFC2A4
+New LFSR state:
+   dropped (s_t): B782C41E
+         s_t+1  = C532772B
+         s_t+2  = 20B4E9A9
+         s_t+3  = BF4398F7
+         s_t+4  = FA49A560
+         s_t+5  = A08FEAB4
+         s_t+6  = 3EC36A76
+         s_t+7  = 45D470B5
+         s_t+8  = 241BF642
+         s_t+9  = 32DFF7D0
+         s_t+10 = D415D98A
+Intermediate output: 1AD53F39
+New FSM state:  r1 = 9B2AE11D   r2 = C7CFCD9E
+New LFSR state:
+   dropped (s_t): C532772B
+         s_t+1  = 20B4E9A9
+         s_t+2  = BF4398F7
+         s_t+3  = FA49A560
+         s_t+4  = A08FEAB4
+         s_t+5  = 3EC36A76
+         s_t+6  = 45D470B5
+         s_t+7  = 241BF642
+         s_t+8  = 32DFF7D0
+         s_t+9  = D415D98A
+         s_t+10 = 5FA0BDDE
+Intermediate output: A88F7739
+New FSM state:  r1 = 33260F1B   r2 = CCC765BC
+New LFSR state:
+   dropped (s_t): 20B4E9A9
+         s_t+1  = BF4398F7
+         s_t+2  = FA49A560
+         s_t+3  = A08FEAB4
+         s_t+4  = 3EC36A76
+         s_t+5  = 45D470B5
+         s_t+6  = 241BF642
+         s_t+7  = 32DFF7D0
+         s_t+8  = D415D98A
+         s_t+9  = 5FA0BDDE
+         s_t+10 = 0586F2BB
+Intermediate output: 5E01A945
+Serpent1 input:  5E01A945 A88F7739 1AD53F39 4CE8F431
+Serpent1 output: 13CC5EFE 12B95D74 BAB63E39 E4D39574
+Stream output: 9598604727FA340D5F2A8BD757B77833
+New FSM state:  r1 = 72B07E7A   r2 = 4B955EC7
+New LFSR state:
+   dropped (s_t): BF4398F7
+         s_t+1  = FA49A560
+         s_t+2  = A08FEAB4
+         s_t+3  = 3EC36A76
+         s_t+4  = 45D470B5
+         s_t+5  = 241BF642
+         s_t+6  = 32DFF7D0
+         s_t+7  = D415D98A
+         s_t+8  = 5FA0BDDE
+         s_t+9  = 0586F2BB
+         s_t+10 = DEB42A67
+Intermediate output: 33A22FF2
+New FSM state:  r1 = EC25497B   r2 = FB81AB24
+New LFSR state:
+   dropped (s_t): FA49A560
+         s_t+1  = A08FEAB4
+         s_t+2  = 3EC36A76
+         s_t+3  = 45D470B5
+         s_t+4  = 241BF642
+         s_t+5  = 32DFF7D0
+         s_t+6  = D415D98A
+         s_t+7  = 5FA0BDDE
+         s_t+8  = 0586F2BB
+         s_t+9  = DEB42A67
+         s_t+10 = 7D18817A
+Intermediate output: 3158D8C6
+New FSM state:  r1 = DBF8EB35   r2 = AF71AEF2
+New LFSR state:
+   dropped (s_t): A08FEAB4
+         s_t+1  = 3EC36A76
+         s_t+2  = 45D470B5
+         s_t+3  = 241BF642
+         s_t+4  = 32DFF7D0
+         s_t+5  = D415D98A
+         s_t+6  = 5FA0BDDE
+         s_t+7  = 0586F2BB
+         s_t+8  = DEB42A67
+         s_t+9  = 7D18817A
+         s_t+10 = 2208D177
+Intermediate output: F660C25D
+New FSM state:  r1 = E83EA0C1   r2 = FCCEB9F3
+New LFSR state:
+   dropped (s_t): 3EC36A76
+         s_t+1  = 45D470B5
+         s_t+2  = 241BF642
+         s_t+3  = 32DFF7D0
+         s_t+4  = D415D98A
+         s_t+5  = 5FA0BDDE
+         s_t+6  = 0586F2BB
+         s_t+7  = DEB42A67
+         s_t+8  = 7D18817A
+         s_t+9  = 2208D177
+         s_t+10 = 2B8847A4
+Intermediate output: F689CBCB
+Serpent1 input:  F689CBCB F660C25D 3158D8C6 33A22FF2
+Serpent1 output: 0B6D0214 003BFCB2 325A3664 0391D300
+Stream output: F74BD2BC049313C80616B4A06268AE35
+New FSM state:  r1 = 02E1E128   r2 = FCFC23B3
+New LFSR state:
+   dropped (s_t): 45D470B5
+         s_t+1  = 241BF642
+         s_t+2  = 32DFF7D0
+         s_t+3  = D415D98A
+         s_t+4  = 5FA0BDDE
+         s_t+5  = 0586F2BB
+         s_t+6  = DEB42A67
+         s_t+7  = 7D18817A
+         s_t+8  = 2208D177
+         s_t+9  = 2B8847A4
+         s_t+10 = F1117A63
+Intermediate output: D2960B7F
+New FSM state:  r1 = 2FDC1B83   r2 = 7A900C22
+New LFSR state:
+   dropped (s_t): 241BF642
+         s_t+1  = 32DFF7D0
+         s_t+2  = D415D98A
+         s_t+3  = 5FA0BDDE
+         s_t+4  = 0586F2BB
+         s_t+5  = DEB42A67
+         s_t+6  = 7D18817A
+         s_t+7  = 2208D177
+         s_t+8  = 2B8847A4
+         s_t+9  = F1117A63
+         s_t+10 = D4ED8F44
+Intermediate output: 5A7D99C4
+New FSM state:  r1 = 9F94B00B   r2 = 4F9CCAC1
+New LFSR state:
+   dropped (s_t): 32DFF7D0
+         s_t+1  = D415D98A
+         s_t+2  = 5FA0BDDE
+         s_t+3  = 0586F2BB
+         s_t+4  = DEB42A67
+         s_t+5  = 7D18817A
+         s_t+6  = 2208D177
+         s_t+7  = 2B8847A4
+         s_t+8  = F1117A63
+         s_t+9  = D4ED8F44
+         s_t+10 = 0C5504D2
+Intermediate output: 3B1EF58E
+New FSM state:  r1 = DAE9FD5B   r2 = 3DB0A6D1
+New LFSR state:
+   dropped (s_t): D415D98A
+         s_t+1  = 5FA0BDDE
+         s_t+2  = 0586F2BB
+         s_t+3  = DEB42A67
+         s_t+4  = 7D18817A
+         s_t+5  = 2208D177
+         s_t+6  = 2B8847A4
+         s_t+7  = F1117A63
+         s_t+8  = D4ED8F44
+         s_t+9  = 0C5504D2
+         s_t+10 = 033F8B1B
+Intermediate output: DA8FA4FC
+Serpent1 input:  DA8FA4FC 3B1EF58E 5A7D99C4 D2960B7F
+Serpent1 output: 0413190A 487983C3 3377530D A9FAC9B8
+Stream output: 0DB92EEC4FA56C171374A67A80C006D0
+New FSM state:  r1 = 47849D3A   r2 = 38B73ED5
+New LFSR state:
+   dropped (s_t): 5FA0BDDE
+         s_t+1  = 0586F2BB
+         s_t+2  = DEB42A67
+         s_t+3  = 7D18817A
+         s_t+4  = 2208D177
+         s_t+5  = 2B8847A4
+         s_t+6  = F1117A63
+         s_t+7  = D4ED8F44
+         s_t+8  = 0C5504D2
+         s_t+9  = 033F8B1B
+         s_t+10 = F7B31D15
+Intermediate output: 72731680
+New FSM state:  r1 = 176B693C   r2 = BE0D4B01
+New LFSR state:
+   dropped (s_t): 0586F2BB
+         s_t+1  = DEB42A67
+         s_t+2  = 7D18817A
+         s_t+3  = 2208D177
+         s_t+4  = 2B8847A4
+         s_t+5  = F1117A63
+         s_t+6  = D4ED8F44
+         s_t+7  = 0C5504D2
+         s_t+8  = 033F8B1B
+         s_t+9  = F7B31D15
+         s_t+10 = D17D5294
+Intermediate output: B113CD50
+New FSM state:  r1 = 3B25CC7B   r2 = DD2A5255
+New LFSR state:
+   dropped (s_t): DEB42A67
+         s_t+1  = 7D18817A
+         s_t+2  = 2208D177
+         s_t+3  = 2B8847A4
+         s_t+4  = F1117A63
+         s_t+5  = D4ED8F44
+         s_t+6  = 0C5504D2
+         s_t+7  = 033F8B1B
+         s_t+8  = F7B31D15
+         s_t+9  = D17D5294
+         s_t+10 = 7C2FF195
+Intermediate output: D1894D5A
+New FSM state:  r1 = D09FD638   r2 = EDBC2EF3
+New LFSR state:
+   dropped (s_t): 7D18817A
+         s_t+1  = 2208D177
+         s_t+2  = 2B8847A4
+         s_t+3  = F1117A63
+         s_t+4  = D4ED8F44
+         s_t+5  = 0C5504D2
+         s_t+6  = 033F8B1B
+         s_t+7  = F7B31D15
+         s_t+8  = D17D5294
+         s_t+9  = 7C2FF195
+         s_t+10 = BE643BED
+Intermediate output: A173E93E
+Serpent1 input:  A173E93E D1894D5A B113CD50 72731680
+Serpent1 output: 5C04A465 F312FFB4 128996C0 91E86D34
+Stream output: EAD048CE7B640F17D3D5A62D1F251C21
+
+Total output:
+ FE 81 D2 16 2C 9A 10 0D 04 89 5C 45 4A 77 51 5B
+ BE 6A 43 1A 93 5C B9 0E 22 21 EB B7 EF 50 23 28
+ 94 35 39 49 2E FF 63 10 C8 71 05 4C 28 89 CC 72
+ 8F 82 E8 6B 1A FF F4 33 4B 61 27 A1 3A 15 5C 75
+ 15 16 30 BD 48 2E B6 73 FF 5D B4 77 FA 6C 53 EB
+ E1 A4 EC 38 C2 3C 54 00 C3 15 45 5D 93 A2 AC ED
+ 95 98 60 47 27 FA 34 0D 5F 2A 8B D7 57 B7 78 33
+ F7 4B D2 BC 04 93 13 C8 06 16 B4 A0 62 68 AE 35
+ 0D B9 2E EC 4F A5 6C 17 13 74 A6 7A 80 C0 06 D0
+ EA D0 48 CE 7B 64 0F 17 D3 D5 A6 2D 1F 25 1C 21
+
+=====================================================
+Detailed test vector 2:
+key = 00112233445566778899AABBCCDDEEFF
+  -> 00000000 00000000 00000000 00000001 FFEEDDCC BBAA9988 77665544 33221100
+Serpent24 subkey  0: 7CF49C7D DD4F2B57 7D187FBD 09D8BAF0
+Serpent24 subkey  1: B8E69D0B 2E8CDA3B 01E9E753 557FDF82
+Serpent24 subkey  2: 20537E4C A64D44B0 A6B69836 328E4CFE
+Serpent24 subkey  3: CAA71DF8 C0309263 8413A5C7 96345B9B
+Serpent24 subkey  4: 38262AB7 EDA6313B 3FACFEA7 340FD6EB
+Serpent24 subkey  5: F8490F21 78C56C0E FBB3CB39 FF5E9F53
+Serpent24 subkey  6: B9220A83 3C829BFB A53AD00E 49618AC4
+Serpent24 subkey  7: B688D4E4 78047039 BAD15360 DA206449
+Serpent24 subkey  8: E6ED3049 ADF2FD67 080AFFB0 2459BE1C
+Serpent24 subkey  9: 8EDF5F34 7DEF7222 709B18E4 0AA99D8B
+Serpent24 subkey 10: 39380693 45A92106 1158D7D0 315F3D3A
+Serpent24 subkey 11: B0CBF08A A7FA70DB 9FC4922C 919D4C39
+Serpent24 subkey 12: 00ED4271 B0785A15 4D113899 FB6E5B1A
+Serpent24 subkey 13: 685B43FC A2FED512 0C6F5830 25CABB21
+Serpent24 subkey 14: 75B84804 10C8F99A 01C2F188 0E1E31DF
+Serpent24 subkey 15: 7B2C2762 48C58519 6EE6E19B CA642F30
+Serpent24 subkey 16: 6845D480 DBDCCCEA 909E69A4 A421408A
+Serpent24 subkey 17: B3154043 0F98BBBC 2C9A428F CA19B98E
+Serpent24 subkey 18: AE158122 42785C2B 19B5B410 96BDE96F
+Serpent24 subkey 19: 4780A5C5 F02A6F29 1E0165AA 6167BCF9
+Serpent24 subkey 20: 8FDACAD0 E04A49ED 997BA857 7550380A
+Serpent24 subkey 21: 1776E699 D71C4249 95518C14 DCB0CBF7
+Serpent24 subkey 22: 3D8314CC C08EBE48 DC1FF1B4 C221119C
+Serpent24 subkey 23: E40DED37 1B4015FD 4D6DCCA8 7704A433
+Serpent24 subkey 24: 6DB4215C C003118E A91BD5B5 EF48C5A6
+IV = 8899AABBCCDDEEFF0011223344556677
+  -> 77665544 33221100 FFEEDDCC BBAA9988
+Initial LFSR state:
+      s1  = B3A3B696
+      s2  = 4F9F2596
+      s3  = 21A53B2B
+      s4  = 1BFABB41
+      s5  = CEC69B9B
+      s6  = DBA99A9F
+      s7  = 6076C06F
+      s8  = C0AE3CD2
+      s9  = ABB5043B
+      s10 = A93D885C
+Initial FSM state:  r1 = 9AB17002   r2 = 101D095B
+New FSM state:  r1 = 5FBC2EF1   r2 = 7A5B074D
+New LFSR state:
+   dropped (s_t): B3A3B696
+         s_t+1  = 4F9F2596
+         s_t+2  = 21A53B2B
+         s_t+3  = 1BFABB41
+         s_t+4  = CEC69B9B
+         s_t+5  = DBA99A9F
+         s_t+6  = 6076C06F
+         s_t+7  = C0AE3CD2
+         s_t+8  = ABB5043B
+         s_t+9  = A93D885C
+         s_t+10 = 72B0324E
+Intermediate output: 72A2B000
+New FSM state:  r1 = 02F3BAC4   r2 = 3935CB9D
+New LFSR state:
+   dropped (s_t): 4F9F2596
+         s_t+1  = 21A53B2B
+         s_t+2  = 1BFABB41
+         s_t+3  = CEC69B9B
+         s_t+4  = DBA99A9F
+         s_t+5  = 6076C06F
+         s_t+6  = C0AE3CD2
+         s_t+7  = ABB5043B
+         s_t+8  = A93D885C
+         s_t+9  = 72B0324E
+         s_t+10 = BCA90B89
+Intermediate output: 4C96268F
+New FSM state:  r1 = 553086DE   r2 = C5D3AE0C
+New LFSR state:
+   dropped (s_t): 21A53B2B
+         s_t+1  = 1BFABB41
+         s_t+2  = CEC69B9B
+         s_t+3  = DBA99A9F
+         s_t+4  = 6076C06F
+         s_t+5  = C0AE3CD2
+         s_t+6  = ABB5043B
+         s_t+7  = A93D885C
+         s_t+8  = 72B0324E
+         s_t+9  = BCA90B89
+         s_t+10 = AC99AADF
+Intermediate output: D40A3C6B
+New FSM state:  r1 = 949A49A7   r2 = D1D5090E
+New LFSR state:
+   dropped (s_t): 1BFABB41
+         s_t+1  = CEC69B9B
+         s_t+2  = DBA99A9F
+         s_t+3  = 6076C06F
+         s_t+4  = C0AE3CD2
+         s_t+5  = ABB5043B
+         s_t+6  = A93D885C
+         s_t+7  = 72B0324E
+         s_t+8  = BCA90B89
+         s_t+9  = AC99AADF
+         s_t+10 = AD8451D9
+Intermediate output: 90E6FD88
+Serpent1 input:  90E6FD88 D40A3C6B 4C96268F 72A2B000
+Serpent1 output: 55455193 6AD4478C 7E1E32E7 5878D76C
+Stream output: FA61DBEB71178131A77C714BD2EABF4E
+New FSM state:  r1 = 4905394E   r2 = 7E1448F8
+New LFSR state:
+   dropped (s_t): CEC69B9B
+         s_t+1  = DBA99A9F
+         s_t+2  = 6076C06F
+         s_t+3  = C0AE3CD2
+         s_t+4  = ABB5043B
+         s_t+5  = A93D885C
+         s_t+6  = 72B0324E
+         s_t+7  = BCA90B89
+         s_t+8  = AC99AADF
+         s_t+9  = AD8451D9
+         s_t+10 = F76224F8
+Intermediate output: 889DC3DF
+New FSM state:  r1 = DE8B0967   r2 = 3F6D9172
+New LFSR state:
+   dropped (s_t): DBA99A9F
+         s_t+1  = 6076C06F
+         s_t+2  = C0AE3CD2
+         s_t+3  = ABB5043B
+         s_t+4  = A93D885C
+         s_t+5  = 72B0324E
+         s_t+6  = BCA90B89
+         s_t+7  = AC99AADF
+         s_t+8  = AD8451D9
+         s_t+9  = F76224F8
+         s_t+10 = 30302DA1
+Intermediate output: EA80BF2D
+New FSM state:  r1 = 7739A99C   r2 = BE5368D5
+New LFSR state:
+   dropped (s_t): 6076C06F
+         s_t+1  = C0AE3CD2
+         s_t+2  = ABB5043B
+         s_t+3  = A93D885C
+         s_t+4  = 72B0324E
+         s_t+5  = BCA90B89
+         s_t+6  = AC99AADF
+         s_t+7  = AD8451D9
+         s_t+8  = F76224F8
+         s_t+9  = 30302DA1
+         s_t+10 = 57D6C172
+Intermediate output: 193ABFE8
+New FSM state:  r1 = 6A086D10   r2 = 8E9BA207
+New LFSR state:
+   dropped (s_t): C0AE3CD2
+         s_t+1  = ABB5043B
+         s_t+2  = A93D885C
+         s_t+3  = 72B0324E
+         s_t+4  = BCA90B89
+         s_t+5  = AC99AADF
+         s_t+6  = AD8451D9
+         s_t+7  = F76224F8
+         s_t+8  = 30302DA1
+         s_t+9  = 57D6C172
+         s_t+10 = B5AB6815
+Intermediate output: 4F448C85
+Serpent1 input:  4F448C85 193ABFE8 EA80BF2D 889DC3DF
+Serpent1 output: C6D833E8 66594F5F 7A23F3BA B4E60F88
+Stream output: 1394207A25698AA1308F2F063A0F7606
+New FSM state:  r1 = 37D92A63   r2 = 7395B874
+New LFSR state:
+   dropped (s_t): ABB5043B
+         s_t+1  = A93D885C
+         s_t+2  = 72B0324E
+         s_t+3  = BCA90B89
+         s_t+4  = AC99AADF
+         s_t+5  = AD8451D9
+         s_t+6  = F76224F8
+         s_t+7  = 30302DA1
+         s_t+8  = 57D6C172
+         s_t+9  = B5AB6815
+         s_t+10 = F214CC9F
+Intermediate output: 9E112A0C
+New FSM state:  r1 = 3AB112CF   r2 = 5EA0DA92
+New LFSR state:
+   dropped (s_t): A93D885C
+         s_t+1  = 72B0324E
+         s_t+2  = BCA90B89
+         s_t+3  = AC99AADF
+         s_t+4  = AD8451D9
+         s_t+5  = F76224F8
+         s_t+6  = 30302DA1
+         s_t+7  = 57D6C172
+         s_t+8  = B5AB6815
+         s_t+9  = F214CC9F
+         s_t+10 = 8BE0AB32
+Intermediate output: 726505FC
+New FSM state:  r1 = AD5EA1A8   r2 = CDD054AD
+New LFSR state:
+   dropped (s_t): 72B0324E
+         s_t+1  = BCA90B89
+         s_t+2  = AC99AADF
+         s_t+3  = AD8451D9
+         s_t+4  = F76224F8
+         s_t+5  = 30302DA1
+         s_t+6  = 57D6C172
+         s_t+7  = B5AB6815
+         s_t+8  = F214CC9F
+         s_t+9  = 8BE0AB32
+         s_t+10 = D23E130D
+Intermediate output: F4EF1877
+New FSM state:  r1 = 7A69FF8C   r2 = A3F1CC29
+New LFSR state:
+   dropped (s_t): BCA90B89
+         s_t+1  = AC99AADF
+         s_t+2  = AD8451D9
+         s_t+3  = F76224F8
+         s_t+4  = 30302DA1
+         s_t+5  = 57D6C172
+         s_t+6  = B5AB6815
+         s_t+7  = F214CC9F
+         s_t+8  = 8BE0AB32
+         s_t+9  = D23E130D
+         s_t+10 = 18893D12
+Intermediate output: EF59DEB0
+Serpent1 input:  EF59DEB0 F4EF1877 726505FC 9E112A0C
+Serpent1 output: 9524CCCC 7340E5B4 94A72DC7 FDD2CB3F
+Stream output: 04CF67569BA59A3DFAD7F00145C78D29
+New FSM state:  r1 = 51761E02   r2 = 7E306A3C
+New LFSR state:
+   dropped (s_t): AC99AADF
+         s_t+1  = AD8451D9
+         s_t+2  = F76224F8
+         s_t+3  = 30302DA1
+         s_t+4  = 57D6C172
+         s_t+5  = B5AB6815
+         s_t+6  = F214CC9F
+         s_t+7  = 8BE0AB32
+         s_t+8  = D23E130D
+         s_t+9  = 18893D12
+         s_t+10 = BDAA3769
+Intermediate output: 17CF3128
+New FSM state:  r1 = 75928F34   r2 = 5FBC0702
+New LFSR state:
+   dropped (s_t): AD8451D9
+         s_t+1  = F76224F8
+         s_t+2  = 30302DA1
+         s_t+3  = 57D6C172
+         s_t+4  = B5AB6815
+         s_t+5  = F214CC9F
+         s_t+6  = 8BE0AB32
+         s_t+7  = D23E130D
+         s_t+8  = 18893D12
+         s_t+9  = BDAA3769
+         s_t+10 = A0745BC7
+Intermediate output: 6C80C19F
+New FSM state:  r1 = 8FEC34A3   r2 = 79E33625
+New LFSR state:
+   dropped (s_t): F76224F8
+         s_t+1  = 30302DA1
+         s_t+2  = 57D6C172
+         s_t+3  = B5AB6815
+         s_t+4  = F214CC9F
+         s_t+5  = 8BE0AB32
+         s_t+6  = D23E130D
+         s_t+7  = 18893D12
+         s_t+8  = BDAA3769
+         s_t+9  = A0745BC7
+         s_t+10 = A9D2D746
+Intermediate output: 4983A64F
+New FSM state:  r1 = 7185D0DA   r2 = 6AA4BAE2
+New LFSR state:
+   dropped (s_t): 30302DA1
+         s_t+1  = 57D6C172
+         s_t+2  = B5AB6815
+         s_t+3  = F214CC9F
+         s_t+4  = 8BE0AB32
+         s_t+5  = D23E130D
+         s_t+6  = 18893D12
+         s_t+7  = BDAA3769
+         s_t+8  = A0745BC7
+         s_t+9  = A9D2D746
+         s_t+10 = C7A59FCC
+Intermediate output: 71FC12C2
+Serpent1 input:  71FC12C2 4983A64F 6C80C19F 17CF3128
+Serpent1 output: AD33A98D 623360BA 2B80C4BD 557C551A
+Stream output: C5FFE5F964950486424451952C84039D
+New FSM state:  r1 = 205022F7   r2 = B0B1FB35
+New LFSR state:
+   dropped (s_t): 57D6C172
+         s_t+1  = B5AB6815
+         s_t+2  = F214CC9F
+         s_t+3  = 8BE0AB32
+         s_t+4  = D23E130D
+         s_t+5  = 18893D12
+         s_t+6  = BDAA3769
+         s_t+7  = A0745BC7
+         s_t+8  = A9D2D746
+         s_t+9  = C7A59FCC
+         s_t+10 = 24EEAF78
+Intermediate output: 574439F6
+New FSM state:  r1 = E6634E88   r2 = 7D04E0DA
+New LFSR state:
+   dropped (s_t): B5AB6815
+         s_t+1  = F214CC9F
+         s_t+2  = 8BE0AB32
+         s_t+3  = D23E130D
+         s_t+4  = 18893D12
+         s_t+5  = BDAA3769
+         s_t+6  = A0745BC7
+         s_t+7  = A9D2D746
+         s_t+8  = C7A59FCC
+         s_t+9  = 24EEAF78
+         s_t+10 = 4EB28CC6
+Intermediate output: 76551EDA
+New FSM state:  r1 = 08E58C0C   r2 = 6A9EDC0D
+New LFSR state:
+   dropped (s_t): F214CC9F
+         s_t+1  = 8BE0AB32
+         s_t+2  = D23E130D
+         s_t+3  = 18893D12
+         s_t+4  = BDAA3769
+         s_t+5  = A0745BC7
+         s_t+6  = A9D2D746
+         s_t+7  = C7A59FCC
+         s_t+8  = 24EEAF78
+         s_t+9  = 4EB28CC6
+         s_t+10 = 4E648DD5
+Intermediate output: 3D06C4DF
+New FSM state:  r1 = 3CDCEF1A   r2 = B55C2A6D
+New LFSR state:
+   dropped (s_t): 8BE0AB32
+         s_t+1  = D23E130D
+         s_t+2  = 18893D12
+         s_t+3  = BDAA3769
+         s_t+4  = A0745BC7
+         s_t+5  = A9D2D746
+         s_t+6  = C7A59FCC
+         s_t+7  = 24EEAF78
+         s_t+8  = 4EB28CC6
+         s_t+9  = 4E648DD5
+         s_t+10 = 5F44697F
+Intermediate output: 3E1D5682
+Serpent1 input:  3E1D5682 3D06C4DF 76551EDA 574439F6
+Serpent1 output: C1F90A5C 23193774 1417A3FB 604A8C51
+Stream output: 234D9C37EECBBCA1EBFB0DD16EA1194A
+New FSM state:  r1 = CDE5677F   r2 = 68FBDB14
+New LFSR state:
+   dropped (s_t): D23E130D
+         s_t+1  = 18893D12
+         s_t+2  = BDAA3769
+         s_t+3  = A0745BC7
+         s_t+4  = A9D2D746
+         s_t+5  = C7A59FCC
+         s_t+6  = 24EEAF78
+         s_t+7  = 4EB28CC6
+         s_t+8  = 4E648DD5
+         s_t+9  = 5F44697F
+         s_t+10 = 754E45EE
+Intermediate output: 45D20BEA
+New FSM state:  r1 = 4BEA392A   r2 = 7780BCC1
+New LFSR state:
+   dropped (s_t): 18893D12
+         s_t+1  = BDAA3769
+         s_t+2  = A0745BC7
+         s_t+3  = A9D2D746
+         s_t+4  = C7A59FCC
+         s_t+5  = 24EEAF78
+         s_t+6  = 4EB28CC6
+         s_t+7  = 4E648DD5
+         s_t+8  = 5F44697F
+         s_t+9  = 754E45EE
+         s_t+10 = 072AB4A9
+Intermediate output: B6B8C3D9
+New FSM state:  r1 = 17F51888   r2 = C117132C
+New LFSR state:
+   dropped (s_t): BDAA3769
+         s_t+1  = A0745BC7
+         s_t+2  = A9D2D746
+         s_t+3  = C7A59FCC
+         s_t+4  = 24EEAF78
+         s_t+5  = 4EB28CC6
+         s_t+6  = 4E648DD5
+         s_t+7  = 5F44697F
+         s_t+8  = 754E45EE
+         s_t+9  = 072AB4A9
+         s_t+10 = 348B3A2B
+Intermediate output: DE08DE1D
+New FSM state:  r1 = 6AE9EA72   r2 = 27E1DC36
+New LFSR state:
+   dropped (s_t): A0745BC7
+         s_t+1  = A9D2D746
+         s_t+2  = C7A59FCC
+         s_t+3  = 24EEAF78
+         s_t+4  = 4EB28CC6
+         s_t+5  = 4E648DD5
+         s_t+6  = 5F44697F
+         s_t+7  = 754E45EE
+         s_t+8  = 072AB4A9
+         s_t+9  = 348B3A2B
+         s_t+10 = 1BF576D3
+Intermediate output: B894F8AB
+Serpent1 input:  B894F8AB DE08DE1D B6B8C3D9 45D20BEA
+Serpent1 output: 660D2B50 F5F6E281 276A0E1C 9424EF67
+Stream output: 6AFC1A460E33E33FE8D55C48977079C6
+New FSM state:  r1 = EF877C02   r2 = 312F8F55
+New LFSR state:
+   dropped (s_t): A9D2D746
+         s_t+1  = C7A59FCC
+         s_t+2  = 24EEAF78
+         s_t+3  = 4EB28CC6
+         s_t+4  = 4E648DD5
+         s_t+5  = 5F44697F
+         s_t+6  = 754E45EE
+         s_t+7  = 072AB4A9
+         s_t+8  = 348B3A2B
+         s_t+9  = 1BF576D3
+         s_t+10 = 7C3BC468
+Intermediate output: 3A537D80
+New FSM state:  r1 = 561E3ECD   r2 = 59850707
+New LFSR state:
+   dropped (s_t): C7A59FCC
+         s_t+1  = 24EEAF78
+         s_t+2  = 4EB28CC6
+         s_t+3  = 4E648DD5
+         s_t+4  = 5F44697F
+         s_t+5  = 754E45EE
+         s_t+6  = 072AB4A9
+         s_t+7  = 348B3A2B
+         s_t+8  = 1BF576D3
+         s_t+9  = 7C3BC468
+         s_t+10 = E94256EB
+Intermediate output: 8BDF0432
+New FSM state:  r1 = 8C0E4FB5   r2 = 08974D9A
+New LFSR state:
+   dropped (s_t): 24EEAF78
+         s_t+1  = 4EB28CC6
+         s_t+2  = 4E648DD5
+         s_t+3  = 5F44697F
+         s_t+4  = 754E45EE
+         s_t+5  = 072AB4A9
+         s_t+6  = 348B3A2B
+         s_t+7  = 1BF576D3
+         s_t+8  = 7C3BC468
+         s_t+9  = E94256EB
+         s_t+10 = 922C8096
+Intermediate output: 7DC7EB3A
+New FSM state:  r1 = AFBE28D8   r2 = 526E79A7
+New LFSR state:
+   dropped (s_t): 4EB28CC6
+         s_t+1  = 4E648DD5
+         s_t+2  = 5F44697F
+         s_t+3  = 754E45EE
+         s_t+4  = 072AB4A9
+         s_t+5  = 348B3A2B
+         s_t+6  = 1BF576D3
+         s_t+7  = 7C3BC468
+         s_t+8  = E94256EB
+         s_t+9  = 922C8096
+         s_t+10 = 37A073A0
+Intermediate output: 1384D0C9
+Serpent1 input:  1384D0C9 7DC7EB3A 8BDF0432 3A537D80
+Serpent1 output: 38736D77 ABCF2941 DC4B4232 DDDF56C1
+Stream output: 87810D74FEDDEE1B3986218FB1E1C176
+New FSM state:  r1 = B1B2E326   r2 = 5492F439
+New LFSR state:
+   dropped (s_t): 4E648DD5
+         s_t+1  = 5F44697F
+         s_t+2  = 754E45EE
+         s_t+3  = 072AB4A9
+         s_t+4  = 348B3A2B
+         s_t+5  = 1BF576D3
+         s_t+6  = 7C3BC468
+         s_t+7  = E94256EB
+         s_t+8  = 922C8096
+         s_t+9  = 37A073A0
+         s_t+10 = A8E04B3B
+Intermediate output: BDC1A2FF
+New FSM state:  r1 = C9E13A27   r2 = C3C40578
+New LFSR state:
+   dropped (s_t): 5F44697F
+         s_t+1  = 754E45EE
+         s_t+2  = 072AB4A9
+         s_t+3  = 348B3A2B
+         s_t+4  = 1BF576D3
+         s_t+5  = 7C3BC468
+         s_t+6  = E94256EB
+         s_t+7  = 922C8096
+         s_t+8  = 37A073A0
+         s_t+9  = A8E04B3B
+         s_t+10 = 2D9C25B6
+Intermediate output: B105801A
+New FSM state:  r1 = 738F050A   r2 = 331E08A4
+New LFSR state:
+   dropped (s_t): 754E45EE
+         s_t+1  = 072AB4A9
+         s_t+2  = 348B3A2B
+         s_t+3  = 1BF576D3
+         s_t+4  = 7C3BC468
+         s_t+5  = E94256EB
+         s_t+6  = 922C8096
+         s_t+7  = 37A073A0
+         s_t+8  = A8E04B3B
+         s_t+9  = 2D9C25B6
+         s_t+10 = 266AA128
+Intermediate output: 92352264
+New FSM state:  r1 = 67A942CF   r2 = 3EB0A366
+New LFSR state:
+   dropped (s_t): 072AB4A9
+         s_t+1  = 348B3A2B
+         s_t+2  = 1BF576D3
+         s_t+3  = 7C3BC468
+         s_t+4  = E94256EB
+         s_t+5  = 922C8096
+         s_t+6  = 37A073A0
+         s_t+7  = A8E04B3B
+         s_t+8  = 2D9C25B6
+         s_t+9  = 266AA128
+         s_t+10 = 668E35FF
+Intermediate output: B0A34091
+Serpent1 input:  B0A34091 92352264 B105801A BDC1A2FF
+Serpent1 output: 410EFF6E 2C426274 9E550000 0392C08B
+Stream output: 5E4DF64D7F6911C19A270C59C74B2446
+New FSM state:  r1 = 7C507B61   r2 = FA7854FE
+New LFSR state:
+   dropped (s_t): 348B3A2B
+         s_t+1  = 1BF576D3
+         s_t+2  = 7C3BC468
+         s_t+3  = E94256EB
+         s_t+4  = 922C8096
+         s_t+5  = 37A073A0
+         s_t+6  = A8E04B3B
+         s_t+7  = 2D9C25B6
+         s_t+8  = 266AA128
+         s_t+9  = 668E35FF
+         s_t+10 = DA655252
+Intermediate output: 18A6E59E
+New FSM state:  r1 = 152E4695   r2 = BC6953FF
+New LFSR state:
+   dropped (s_t): 1BF576D3
+         s_t+1  = 7C3BC468
+         s_t+2  = E94256EB
+         s_t+3  = 922C8096
+         s_t+4  = 37A073A0
+         s_t+5  = A8E04B3B
+         s_t+6  = 2D9C25B6
+         s_t+7  = 266AA128
+         s_t+8  = 668E35FF
+         s_t+9  = DA655252
+         s_t+10 = 3296EDA3
+Intermediate output: 53FACB18
+New FSM state:  r1 = EF9058B8   r2 = F79E89A8
+New LFSR state:
+   dropped (s_t): 7C3BC468
+         s_t+1  = E94256EB
+         s_t+2  = 922C8096
+         s_t+3  = 37A073A0
+         s_t+4  = A8E04B3B
+         s_t+5  = 2D9C25B6
+         s_t+6  = 266AA128
+         s_t+7  = 668E35FF
+         s_t+8  = DA655252
+         s_t+9  = 3296EDA3
+         s_t+10 = 5FCF5DDA
+Intermediate output: D5B9CFF3
+New FSM state:  r1 = 89CB0A3E   r2 = 270A845D
+New LFSR state:
+   dropped (s_t): E94256EB
+         s_t+1  = 922C8096
+         s_t+2  = 37A073A0
+         s_t+3  = A8E04B3B
+         s_t+4  = 2D9C25B6
+         s_t+5  = 266AA128
+         s_t+6  = 668E35FF
+         s_t+7  = DA655252
+         s_t+8  = 3296EDA3
+         s_t+9  = 5FCF5DDA
+         s_t+10 = 064571E8
+Intermediate output: CE90EC45
+Serpent1 input:  CE90EC45 D5B9CFF3 53FACB18 18A6E59E
+Serpent1 output: 332A179A 52740992 13EDC730 58732D3C
+Stream output: 1717F86CE3B11808FACD4F2E714168DA
+New FSM state:  r1 = 5EAAF7FD   r2 = AAB0D97D
+New LFSR state:
+   dropped (s_t): 922C8096
+         s_t+1  = 37A073A0
+         s_t+2  = A8E04B3B
+         s_t+3  = 2D9C25B6
+         s_t+4  = 266AA128
+         s_t+5  = 668E35FF
+         s_t+6  = DA655252
+         s_t+7  = 3296EDA3
+         s_t+8  = 5FCF5DDA
+         s_t+9  = 064571E8
+         s_t+10 = D1BB1EC2
+Intermediate output: CE40B098
+New FSM state:  r1 = 59561450   r2 = F26775EF
+New LFSR state:
+   dropped (s_t): 37A073A0
+         s_t+1  = A8E04B3B
+         s_t+2  = 2D9C25B6
+         s_t+3  = 266AA128
+         s_t+4  = 668E35FF
+         s_t+5  = DA655252
+         s_t+6  = 3296EDA3
+         s_t+7  = 5FCF5DDA
+         s_t+8  = 064571E8
+         s_t+9  = D1BB1EC2
+         s_t+10 = A1D034B6
+Intermediate output: D97646FD
+New FSM state:  r1 = 20039BA5   r2 = C03F184E
+New LFSR state:
+   dropped (s_t): A8E04B3B
+         s_t+1  = 2D9C25B6
+         s_t+2  = 266AA128
+         s_t+3  = 668E35FF
+         s_t+4  = DA655252
+         s_t+5  = 3296EDA3
+         s_t+6  = 5FCF5DDA
+         s_t+7  = 064571E8
+         s_t+8  = D1BB1EC2
+         s_t+9  = A1D034B6
+         s_t+10 = B6FB52F5
+Intermediate output: 01ECC815
+New FSM state:  r1 = 47F9ADEC   r2 = D46041CB
+New LFSR state:
+   dropped (s_t): 2D9C25B6
+         s_t+1  = 266AA128
+         s_t+2  = 668E35FF
+         s_t+3  = DA655252
+         s_t+4  = 3296EDA3
+         s_t+5  = 5FCF5DDA
+         s_t+6  = 064571E8
+         s_t+7  = D1BB1EC2
+         s_t+8  = A1D034B6
+         s_t+9  = B6FB52F5
+         s_t+10 = B1A0D43D
+Intermediate output: 2A95412A
+Serpent1 input:  2A95412A 01ECC815 D97646FD CE40B098
+Serpent1 output: E17181B7 3C57F77A 157A3E75 F24F4FD2
+Stream output: 44CF6360D54DDA2241BCB79401A4EDCC
+
+Total output:
+ FA 61 DB EB 71 17 81 31 A7 7C 71 4B D2 EA BF 4E
+ 13 94 20 7A 25 69 8A A1 30 8F 2F 06 3A 0F 76 06
+ 04 CF 67 56 9B A5 9A 3D FA D7 F0 01 45 C7 8D 29
+ C5 FF E5 F9 64 95 04 86 42 44 51 95 2C 84 03 9D
+ 23 4D 9C 37 EE CB BC A1 EB FB 0D D1 6E A1 19 4A
+ 6A FC 1A 46 0E 33 E3 3F E8 D5 5C 48 97 70 79 C6
+ 87 81 0D 74 FE DD EE 1B 39 86 21 8F B1 E1 C1 76
+ 5E 4D F6 4D 7F 69 11 C1 9A 27 0C 59 C7 4B 24 46
+ 17 17 F8 6C E3 B1 18 08 FA CD 4F 2E 71 41 68 DA
+ 44 CF 63 60 D5 4D DA 22 41 BC B7 94 01 A4 ED CC
+
