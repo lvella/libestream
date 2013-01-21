@@ -31,7 +31,7 @@ typedef struct
  * stick with 128.
  */
 void sosemanuk_init_key(sosemanuk_master_state *state,
-			const uint8_t *key, uint8_t bitlength);
+			const uint8_t *key, size_t bitlength);
 
 /** Initialize the Sosemanuk state as for encryption.
  *

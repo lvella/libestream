@@ -1,5 +1,6 @@
 #include <string.h>
 #include "util.h"
+#include "serpent_bitslice_sbox.h"
 
 #include "sosemanuk.h"
 
@@ -177,38 +178,65 @@ lfsr_step(sosemanuk_state *state)
   return st0;
 }
 
-static uint8_t
-sbox_apply(uint8_t sbox_idx, uint8_t input)
+static inline void
+sbox_apply(uint8_t sbox_idx, uint32_t *in, uint32_t *out)
 {
-  // TODO: write this!
-
-  // This is the bogus part, because the article doesn't explain how to
-  // do it, it seems that the only thing to do is to copy-paste some
-  // pre-made boolean functions
-}
-
-static uint32_t
-sbox_apply_w32(uint8_t sbox_idx, uint32_t input)
-{
-  int i;
-  uint8_t *ptr = (uint8_t*)&input;
-  for(i = 0; i < 4; ++i)
-    ptr[i] = sbox_apply(sbox_idx, ptr[i]);
-
-  return input;
-}
-
-static void
-serpent1(uint8_t *in, uint8_t *out)
-{
-  int i;
-  for(i = 0; i < 16; ++i)
-    out[i] = sbox_apply(2, in[i]);
+  switch(sbox_idx) 
+    {
+    case 0:
+      {
+	register uint32_t t1, t2, t3, t4, t6, t7, t8, t10, t11, t12, t14;
+	sb0(in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3]);
+	break;
+      }
+    case 1:
+      {
+	register uint32_t t1, t2, t3, t4, t5, t7, t8, t9, t11, t13;
+	sb1(in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3]);
+	break;
+      }
+    case 2:
+      {
+	register uint32_t t1, t2, t3, t5, t6, t7, t9, t10, t11, t13, t14, t15;
+	sb2(in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3]);
+	break;
+      }
+    case 3:
+      {
+	register uint32_t t1, t2, t3, t4, t5, t6, t8, t9, t10, t12, t14, t15;
+	sb3(in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3]);
+	break;
+      }
+    case 4:
+      {
+	register uint32_t t1, t2, t3, t4, t6, t7, t9, t10, t11, t13, t14;
+	sb4(in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3]);
+	break;
+      }
+    case 5:
+      {
+	register uint32_t t1, t2, t3, t4, t5, t7, t8, t10, t11, t12, t14, t15;
+	sb5(in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3]);
+	break;
+      }
+    case 6:
+      {
+	register uint32_t t1, t2, t3, t4, t5, t7, t8, t9, t11, t13, t14;
+	sb6(in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3]);
+	break;
+      }
+    case 7:
+      {
+	register uint32_t t1, t2, t3, t4, t5, t6, t8, t9, t11, t12, t14, t15;
+	sb7(in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3]);
+	break;
+      }
+    }
 }
 
 void
 sosemanuk_init_key(sosemanuk_master_state *state,
-		   const uint8_t *key, uint8_t bitlength)
+		   const uint8_t *key, size_t bitlength)
 {
   uint32_t w[108];
 
@@ -251,6 +279,8 @@ sosemanuk_init_key(sosemanuk_master_state *state,
 
       w[i++] = tmp;
     }
+  else if(bitlength < 256)
+    w[i++] = 1u;
 
   for(; i < 8; ++i)
     w[i] = 0;
@@ -259,12 +289,15 @@ sosemanuk_init_key(sosemanuk_master_state *state,
     w[i] = rotl(w[i - 8] ^ w[i - 5] ^ w[i - 3] ^ w[i - 1] ^ 0x9e3779b9u ^ (i-8),
 		11);
 
-  for(i = 0; i < 25; ++i)
+  /* In the code below, I am counting on the compiler for loop unrolling
+   * the outer loop and inlining and auto vectorizing the inner loop.
+   * Don't disappoint me, compiler! */
+  for(i = 0; i < 8; ++i)
     {
       uint8_t sbox_idx = 7 - (i+4) % 8;
       int j;
-      for(j = 0; j < 4; ++j)
-	state->k[i*4 + j] = sbox_apply_w32(sbox_idx, w[i*4 + j + 8]);
+      for(j = i; j < 25; j += 8)
+	sbox_apply(sbox_idx, &w[8 + j*4], &state->k[j*4]);
     }
 }
 
@@ -272,8 +305,11 @@ static void
 serpent_round(const sosemanuk_master_state *master, int idx, uint32_t *data)
 {
   int i;
+  uint32_t tmp[4];
+
   for(i = 0; i < 4; ++i)
-    data[i] = sbox_apply_w32(idx % 8, data[i] ^ master->k[idx*4 + i]);
+    tmp[i] = data[i] ^ master->k[idx*4 + i];
+  sbox_apply(idx % 8, tmp, data);
 
   data[0] = rotl(data[0], 13);
   data[2] = rotl(data[2], 3);
@@ -296,6 +332,7 @@ sosemanuk_init_iv(sosemanuk_state *iv_state,
 
   uint32_t *s = iv_state->s;
   uint32_t *r = iv_state->r;
+  iv_state->t = 0;
 
   uint32_t data[4];
 #ifdef LITTLE_ENDIAN
@@ -336,27 +373,24 @@ sosemanuk_init_iv(sosemanuk_state *iv_state,
   s[3] = data[0] ^ sk[96];
   s[2] = data[1] ^ sk[97];
   s[1] = data[2] ^ sk[98];
-  s[0] = data[1] ^ sk[99];
+  s[0] = data[3] ^ sk[99];
 }
 
 void
 sosemanuk_extract(sosemanuk_state *state, uint8_t *stream)
 {
-  union {
-    uint32_t w32[4];
-    uint8_t w8[16];
-  } f;
+  uint32_t f[4];
   uint32_t s[4];
 
   int i;
   for(i = 0; i < 4; ++i) {
-    f.w32[i] = automaton_step(state);
+    f[i] = automaton_step(state);
     s[i] = lfsr_step(state);
   }
 
-  serpent1(f.w8, stream);
-
   uint32_t *stream32 = (uint32_t*)stream;
+  sbox_apply(2, f, stream32);
+
   for(i = 0; i < 4; ++i) {
 #ifdef LITTLE_ENDIAN
     stream32[i] ^= s[i];
