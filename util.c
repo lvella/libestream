@@ -7,7 +7,7 @@ rotl(uint32_t x, unsigned int n)
 }
 
 uint32_t
-pack_littleendian(uint8_t *v)
+pack_littleendian(const uint8_t *v)
 {
   return (uint32_t)v[3] << 24
       | (uint32_t)v[2] << 16

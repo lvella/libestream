@@ -5,7 +5,7 @@
 #include "salsa20.h"
 
 #undef LITTLE_ENDIAN
-#define LITTLE_ENDIAN
+//#define LITTLE_ENDIAN
 
 #ifdef LITTLE_ENDIAN
 #warning "Little endian code."
@@ -110,7 +110,7 @@ salsa20_init_key(salsa20_state *state, salsa20_variant variant,
 #ifdef LITTLE_ENDIAN
   const uint32_t *k32 = (uint32_t*)key;
 #else
-  const uint32_t k32[8];
+  uint32_t k32[8];
   const size_t key_words = 4 + key_size * 4; /* 4 or 8 */
   for(i = 0; i < key_words; ++i)
     k32[i] = pack_littleendian(&key[i*4]);
