@@ -53,13 +53,25 @@ test(const char *input, salsa20_variant variant)
 		     : SALSA20_256_BITS);
     salsa20_init_iv(&ivstate, &master, iv);
 
+    size_t gen_bytes = 0;
     int i;
     for(i = 0; i < 4; ++i) {
       uint8_t stream[64];
-      salsa20_extract(&ivstate, stream);
+      unsigned int from, to;
+      int skip;
 
-      input = strstr(input, " = ");
-      input += 3;
+      input = strstr(input, "stream[");
+      input += 7;
+
+      sscanf(input, "%u..%u%n", &from, &to, &skip);
+      input += skip + 4;
+
+      do
+	{
+	  salsa20_extract(&ivstate, stream);
+	  gen_bytes += 64;
+	}
+      while(gen_bytes <= from);
 
       uint8_t rstream[64];
       read_hex_bytes(&input, rstream, 64);
