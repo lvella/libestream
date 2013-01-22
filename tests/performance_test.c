@@ -2,6 +2,7 @@
 #include <time.h>
 #include "rabbit.h"
 #include "sosemanuk.h"
+#include "salsa20.h"
 
 unsigned char key[16] = {0x91, 0x28, 0x13, 0x29, 0x2E, 0x3D, 0x36, 0xFE, 0x3B, 0xFC, 0x62, 0xF1, 0xDC, 0x51, 0xC3, 0xAC};
 
@@ -58,6 +59,26 @@ static void sosemanuk_test()
     }
 }
 
+static void salsa20_test(salsa20_variant variant)
+{
+    salsa20_state mstate;
+    salsa20_init_key(&mstate, variant, key, SALSA20_128_BITS);
+
+    salsa20_state ivstate;
+    salsa20_init_iv(&ivstate, &mstate, key);
+
+    unsigned char stream[4096];
+    int i;
+
+    for(i = 0; i < 10000; ++i) {
+      int c;
+      for(c = 0; c < 4096; c += 64)
+	salsa20_extract(&ivstate, &stream[c]);
+
+      fwrite(stream, 1, 4096, stdout);
+    }
+}
+
 double
 timespecdiff(struct timespec *a, struct timespec *b) {
   return a->tv_sec + a->tv_nsec / 1000000000.0
@@ -83,4 +104,19 @@ main()
   sosemanuk_test();
   clock_gettime(CLOCK_MONOTONIC_RAW, &fin);
   fprintf(stderr, "Sosemanuk time: %f\n", timespecdiff(&fin, &ini));
+
+  clock_gettime(CLOCK_MONOTONIC_RAW, &ini);
+  salsa20_test(SALSA20_8);
+  clock_gettime(CLOCK_MONOTONIC_RAW, &fin);
+  fprintf(stderr, "Salsa20/8 time: %f\n", timespecdiff(&fin, &ini));
+
+  clock_gettime(CLOCK_MONOTONIC_RAW, &ini);
+  salsa20_test(SALSA20_12);
+  clock_gettime(CLOCK_MONOTONIC_RAW, &fin);
+  fprintf(stderr, "Salsa20/12 time: %f\n", timespecdiff(&fin, &ini));
+
+  clock_gettime(CLOCK_MONOTONIC_RAW, &ini);
+  salsa20_test(SALSA20_20);
+  clock_gettime(CLOCK_MONOTONIC_RAW, &fin);
+  fprintf(stderr, "Salsa20/20 time: %f\n", timespecdiff(&fin, &ini));
 }
