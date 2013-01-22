@@ -14,7 +14,19 @@ typedef enum {
 } salsa20_key_size;
 
 typedef struct {
-  uint32_t hash_input[16];
+  union {
+    uint32_t bit32[16];
+    uint64_t bit64[8];
+  } hash_input;
   char variant;
 } salsa20_state;
 
+void salsa20_init_key(salsa20_state *state, salsa20_variant variant,
+		      const uint8_t *key, salsa20_key_size key_size);
+
+void salsa20_init_iv(salsa20_state *iv_state, const salsa20_state *master,
+		     const uint8_t *iv);
+
+void salsa20_set_counter(salsa20_state *state, uint64_t counter);
+
+void salsa20_extract(salsa20_state *state, uint8_t *stream);

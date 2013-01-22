@@ -1,7 +1,15 @@
 #include <stdlib.h>
+#include <string.h>
 #include "util.h"
 
 #include "salsa20.h"
+
+#undef LITTLE_ENDIAN
+#define LITTLE_ENDIAN
+
+#ifdef LITTLE_ENDIAN
+#warning "Little endian code."
+#endif
 
 /**
  * @param in may be the same as out
@@ -95,22 +103,74 @@ salsa20_hash(char drounds, const uint32_t *in, uint32_t *out)
 }
 
 void
-salsa20_init_key(salsa20_state &state, salsa20_variant variant,
-		 uint8_t *key, salsa20_key_size key_size)
+salsa20_init_key(salsa20_state *state, salsa20_variant variant,
+		 const uint8_t *key, salsa20_key_size key_size)
 {
-  // TO BE CONTINUED...
+  int i;
+#ifdef LITTLE_ENDIAN
+  const uint32_t *k32 = (uint32_t*)key;
+#else
+  const uint32_t k32[8];
+  const size_t key_words = 4 + key_size * 4; /* 4 or 8 */
+  for(i = 0; i < key_words; ++i)
+    k32[i] = pack_littleendian(&key[i*4]);
+#endif
+
+  state->variant = variant;
+  uint32_t *s = state->hash_input.bit32;
+
+  static const uint32_t consts[2][4] = 
+    {{0x3120646e, 0x79622d36}, /* Tau, 128-bits */
+     {0x3320646e, 0x79622d32}}; /* Sigma, 256-bits */
+
+  s[0] = 0x61707865;
+  memcpy(s+1, k32, 16);
+  s[5] = consts[key_size][0];
+  // s[6..9] will be set at IV setup
+  s[10] = consts[key_size][1];
+  memcpy(s+11, &k32[key_size * 4], 16);
+  s[15] = 0x6b206574;
 }
 
 void
-salsa20_extract(salsa20_state &state, uint8_t *stream)
+salsa20_init_iv(salsa20_state *iv_state, const salsa20_state *master,
+		const uint8_t *iv)
 {
-  salsa20_hash(state.variant, state->hash_input, (uint32_t*)stream);
+  memcpy(iv_state, master, sizeof(salsa20_state));
 
+#ifdef LITTLE_ENDIAN
+  iv_state->hash_input.bit64[3] = *(uint64_t*)iv;
+#else
+  iv_state->hash_input.bit32[6] = pack_littleendian(iv    );
+  iv_state->hash_input.bit32[7] = pack_littleendian(iv + 4);
+#endif
+
+  iv_state->hash_input.bit64[4] = 0; /* Counter initalization. */
+}
+
+void
+salsa20_set_counter(salsa20_state *state, uint64_t counter)
+{
+#ifdef LITTLE_ENDIAN
+  state->hash_input.bit64[4] = counter;
+#else
+  state->hash_input.bit32[8] = counter;
+  state->hash_input.bit32[9] = counter >> 32;
+#endif
+}
+
+void
+salsa20_extract(salsa20_state *state, uint8_t *stream)
+{
+  salsa20_hash(state->variant, state->hash_input.bit32, (uint32_t*)stream);
+
+#ifdef LITTLE_ENDIAN
+  ++state->hash_input.bit64[4];
+#else
   /* I am trusting the branch preditor here... */
-  if(!++state->hash_input[8])
-    ++state->hash_input[9];
+  if(!++state->hash_input.bit32[8])
+    ++state->hash_input.bit32[9];
 
-#ifndef LITTLE_ENDIAN
   int i;
   for(i = 0; i < 16; ++i)
     {
@@ -123,6 +183,7 @@ salsa20_extract(salsa20_state &state, uint8_t *stream)
 #endif
 }
 
+/*
 int main()
 {
   {
@@ -210,3 +271,4 @@ int main()
     putchar('\n');
   }
 }
+*/
