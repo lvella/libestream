@@ -9,8 +9,12 @@ rotl(uint32_t x, unsigned int n)
 uint32_t
 pack_littleendian(const uint8_t *v)
 {
+#ifdef LITTLE_ENDIAN
+  return *((uint32_t*)v);
+#else
   return (uint32_t)v[3] << 24
       | (uint32_t)v[2] << 16
       | (uint32_t)v[1] << 8
       | (uint32_t)v[0];
+#endif
 }
