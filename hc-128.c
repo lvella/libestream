@@ -27,18 +27,18 @@ g2(uint32_t x, uint32_t y, uint32_t z)
 }
 
 static uint32_t
-h(const uint32_t *pq, uint32_t x)
+h(const uint32_t *qp, uint32_t x)
 {
-  return pq[x & 0xFFu] + pq[256 + ((x >> 16) & 0xFFu)];
+  return qp[x & 0xFFu] + qp[256 + ((x >> 16) & 0xFFu)];
 }
 
 static uint32_t
-round_expression(uint32_t *pq,
+round_expression(uint32_t *pq, const uint32_t *qp,
 		 uint32_t (*g)(uint32_t x, uint32_t y, uint32_t z),
 		 uint16_t i)
 {
   pq[i] += g(pq[(i-3u) & mask], pq[(i-10u) & mask], pq[(i+1u) & mask]);
-  return pq[i] ^ h(pq, pq[(i-12u) & mask]);
+  return pq[i] ^ h(qp, pq[(i-12u) & mask]);
 }
 
 void
@@ -66,10 +66,10 @@ hc128_init(hc128_state *state, const uint8_t *key, const uint8_t *iv)
     }
 
   for(i = 0; i < 512; ++i)
-    {
-      p[i] = round_expression(p, g1, i);
-      q[i] = round_expression(q, g2, i);
-    }
+    p[i] = round_expression(p, q, g1, i);
+
+  for(i = 0; i < 512; ++i)
+    q[i] = round_expression(q, p, g2, i);
 
   state->i = 0;
 }
@@ -82,6 +82,6 @@ hc128_extract(hc128_state *state)
   state->i = (i+1u) & 1023u;
 
   return (i < 512)
-    ? round_expression(state->p, g1, i       )
-    : round_expression(state->q, g2, i & mask);
+    ? round_expression(state->p, state->q, g1, i       )
+    : round_expression(state->q, state->p, g2, i & mask);
 }
