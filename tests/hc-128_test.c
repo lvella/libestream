@@ -65,7 +65,7 @@ test(const char *input)
 
       do
 	{
-	  hc128_extract(&state);
+	  hc128_extract(&state, stream);
 	  gen_bytes += 4;
 	}
       while(gen_bytes < from);
@@ -73,7 +73,8 @@ test(const char *input)
       int j;
       for(j = 0; j < 16; ++j)
 	{
-	  *((uint32_t*)&stream[j*4]) = hc128_extract(&state);
+	  hc128_extract(&state, &stream[j*4]);
+	  gen_bytes += 4;
 	}
 
       uint8_t rstream[64];

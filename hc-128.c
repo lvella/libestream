@@ -1,6 +1,17 @@
 #include "hc-128.h"
 
-static const unsigned int mask = 0x1ff; /* 511 mask, for mod 512 */
+static uint32_t
+rrot(uint32_t x, unsigned int n)
+{
+  return (x >> n) ^ (x << (32-n));
+}
+
+static unsigned int
+m512(unsigned int x)
+{
+  static const unsigned int mask = 0x1ff; /* 511 mask, for mod 512 */
+  return x & mask;
+}
 
 static uint32_t
 f1(uint32_t x)
@@ -37,8 +48,8 @@ round_expression(uint32_t *pq, const uint32_t *qp,
 		 uint32_t (*g)(uint32_t x, uint32_t y, uint32_t z),
 		 uint16_t i)
 {
-  pq[i] += g(pq[(i-3u) & mask], pq[(i-10u) & mask], pq[(i+1u) & mask]);
-  return pq[i] ^ h(qp, pq[(i-12u) & mask]);
+  pq[i] += g(pq[m512(i-3u)], pq[m512(i-10u)], pq[m512(i+1u)]);
+  return pq[i] ^ h(qp, pq[m512(i-12u)]);
 }
 
 void
@@ -74,14 +85,16 @@ hc128_init(hc128_state *state, const uint8_t *key, const uint8_t *iv)
   state->i = 0;
 }
 
-uint32_t
-hc128_extract(hc128_state *state)
+void
+hc128_extract(hc128_state *state, uint8_t *stream)
 {
   uint16_t i = state->i;
 
   state->i = (i+1u) & 1023u;
 
-  return (i < 512)
+  register uint32_t ret = (i < 512)
     ? round_expression(state->p, state->q, g1, i       )
-    : round_expression(state->q, state->p, g2, i & mask);
+    : round_expression(state->q, state->p, g2, m512(i));
+
+  unpack_littleendian(ret, stream);
 }
