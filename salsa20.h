@@ -39,6 +39,8 @@ typedef struct {
  * may not work with unaligned memory).
  * @param key_size One of the enum values SALSA20_128_BITS or SALSA20_256_BITS
  * giving the size of the buffer provided as key (16 or 32 bytes, respectvely).
+ * Notice that there is no performance difference of the algorithm between 128
+ * or 256 bits key.
  */
 void salsa20_init_key(salsa20_state *state, salsa20_variant variant,
 		      const uint8_t *key, salsa20_key_size key_size);
