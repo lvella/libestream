@@ -1,11 +1,5 @@
 #include "hc-128.h"
 
-static uint32_t
-rrot(uint32_t x, unsigned int n)
-{
-  return (x >> n) ^ (x << (32-n));
-}
-
 static unsigned int
 m512(unsigned int x)
 {
