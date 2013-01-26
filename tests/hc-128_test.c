@@ -63,12 +63,11 @@ test(const char *input)
       sscanf(input, "%u..%u%n", &from, &to, &skip);
       input += skip + 4;
 
-      do
+      while(gen_bytes < from)
 	{
 	  hc128_extract(&state, stream);
 	  gen_bytes += 4;
 	}
-      while(gen_bytes < from);
 
       int j;
       for(j = 0; j < 16; ++j)
