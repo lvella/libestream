@@ -22,7 +22,7 @@ pack_littleendian(const uint8_t *v)
 #endif
 }
 
-uint32_t
+void
 unpack_littleendian(uint32_t value, uint8_t *v)
 {
 #ifdef LITTLE_ENDIAN

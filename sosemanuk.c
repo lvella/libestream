@@ -7,13 +7,6 @@
 
 #include "sosemanuk.h"
 
-//#undef LITTLE_ENDIAN
-#define LITTLE_ENDIAN
-
-#ifdef LITTLE_ENDIAN
-#warning "Little endian code."
-#endif
-
 /* Multiplication by alpha: alpha * x = T32(x << 8) ^ mul_a[x >> 24] */
 static uint32_t mul_a[] = {
   0x00000000, 0xE19FCF13, 0x6B973726, 0x8A08F835,
@@ -246,17 +239,7 @@ sosemanuk_init_key(sosemanuk_master_state *state,
   uint32_t i;
   int fullwords = bitlength / 32;
   for(i = 0; i < fullwords; ++i)
-    {
-      w[i] =
-#ifdef LITTLE_ENDIAN
-	((uint32_t*)key)[i];
-#else
-          (uint32_t)key[i*4+3] << 24
-	| (uint32_t)key[i*4+2] << 16
-	| (uint32_t)key[i*4+1] << 8
-	| (uint32_t)key[i*4];
-#endif
-    }
+    w[i] = pack_littleendian(&key[i*4]);
 
   int partial = bitlength % 32;
   if(partial)
@@ -338,18 +321,9 @@ sosemanuk_init_iv(sosemanuk_state *iv_state,
   iv_state->t = 0;
 
   uint32_t data[4];
-#ifdef LITTLE_ENDIAN
-  memcpy(data, iv, 16);
-#else
+
   for(i = 0; i < 4; ++i)
-    {
-      data[i] =
-	  (uint32_t)iv[i*4+3] << 24
-	| (uint32_t)iv[i*4+2] << 16
-	| (uint32_t)iv[i*4+1] << 8
-	| (uint32_t)iv[i*4];
-    }
-#endif
+    data[i] = pack_littleendian(&iv[i*4]);
 
   for(i = 0; i < 12; ++i)
     serpent_round(master, i, data);
@@ -386,23 +360,18 @@ sosemanuk_extract(sosemanuk_state *state, uint8_t *stream)
   uint32_t s[4];
 
   int i;
-  for(i = 0; i < 4; ++i) {
-    f[i] = automaton_step(state);
-    s[i] = lfsr_step(state);
-  }
+  for(i = 0; i < 4; ++i)
+    {
+      f[i] = automaton_step(state);
+      s[i] = lfsr_step(state);
+    }
 
   uint32_t *stream32 = (uint32_t*)stream;
   sbox_apply(2, f, stream32);
 
-  for(i = 0; i < 4; ++i) {
-#ifdef LITTLE_ENDIAN
-    stream32[i] ^= s[i];
-#else
-    uint32_t tmp = stream32[i] ^ s[i];
-    stream[4*i    ] = tmp;
-    stream[4*i + 1] = tmp >> 8;
-    stream[4*i + 2] = tmp >> 16;
-    stream[4*i + 3] = tmp >> 24;
-#endif
-  }
+  for(i = 0; i < 4; ++i)
+    {
+      register uint32_t tmp = stream32[i] ^ s[i];
+      unpack_littleendian(tmp, &stream[i*4]);
+    }
 }

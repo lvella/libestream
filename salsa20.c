@@ -178,10 +178,7 @@ salsa20_extract(salsa20_state *state, uint8_t *stream)
   for(i = 0; i < 16; ++i)
     {
       uint32_t tmp = ((uint32_t*)stream)[i];
-      stream[i*4  ] = tmp;
-      stream[i*4+1] = tmp >> 8;
-      stream[i*4+2] = tmp >> 16;
-      stream[i*4+3] = tmp >> 24;
+      unpack_littleendian(tmp, &stream[i*4]);
     }
 #endif
 }

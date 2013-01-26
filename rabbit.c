@@ -6,13 +6,6 @@
 
 #include "rabbit.h"
 
-//#undef LITTLE_ENDIAN
-#define LITTLE_ENDIAN
-
-#ifdef LITTLE_ENDIAN
-#warning "Little endian code."
-#endif
-
 static void
 print_state(rabbit_state *s)
 {
