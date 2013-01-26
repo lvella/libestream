@@ -16,6 +16,8 @@ typedef struct
  * here because of the nature of the algorithm, that keeps no intermediate
  * state between the key setting and the IV setting.
  *
+ * Notice: an IV should never be reused.
+ *
  * @param state The unintialized state, it will be ready to
  * encryption/decryption afterwards.
  * @param key 16 bytes buffer containing the 128-bit key. The buffer must

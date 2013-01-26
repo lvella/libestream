@@ -39,8 +39,8 @@ typedef struct {
  * may not work with unaligned memory).
  * @param key_size One of the enum values SALSA20_128_BITS or SALSA20_256_BITS
  * giving the size of the buffer provided as key (16 or 32 bytes, respectvely).
- * Notice that there is no performance difference of the algorithm between 128
- * or 256 bits key.
+ * Notice: there is no performance difference in the algorithm between 128
+ * or 256 bits keys.
  */
 void salsa20_init_key(salsa20_state *state, salsa20_variant variant,
 		      const uint8_t *key, salsa20_key_size key_size);
@@ -57,7 +57,7 @@ void salsa20_init_key(salsa20_state *state, salsa20_variant variant,
  * thus preparing it to generate the stream from the beginning. See
  * salsa20_set_counter().
  *
- * Notice that an IV should never be reused.
+ * Notice: an IV should never be reused.
  *
  * @param iv_state The output state, to be initialized with the IV.
  * @param master The master state, already initialized with the key.

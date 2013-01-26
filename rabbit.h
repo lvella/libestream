@@ -29,7 +29,7 @@ void rabbit_init_key(rabbit_state *state, const uint8_t *key);
  * times to generate different encryption states based on different
  * Initialization Vectors (IVs).
  *
- * Notice that an IV should never be reused.
+ * Notice: an IV should never be reused.
  *
  * @param iv_state The output state, to be initialized with the IV.
  * @param master The master state, already initialized with the key.
