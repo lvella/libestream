@@ -43,7 +43,7 @@ int main()
       key_from_str(key, char_keys[i], 16);
 
       rabbit_state state;
-      rabbit_init_master(&state, key);
+      rabbit_init_key(&state, key);
 
       print_vals("key ", key, 16);
 
@@ -69,7 +69,7 @@ int main()
      "A6 EB 56 1A D2 F4 17 27" };
 
   rabbit_state mstate;
-  rabbit_init_master(&mstate, mkey);
+  rabbit_init_key(&mstate, mkey);
   print_vals("mkey", mkey, 16);
 
   for(i = 0; i < 3; ++i)
