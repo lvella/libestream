@@ -1,3 +1,6 @@
+/* Author: Lucas Clemente Vella
+ * Source code placed into public domain. */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

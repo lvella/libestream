@@ -1,3 +1,6 @@
+/* Author: Lucas Clemente Vella
+ * Source code placed into public domain. */
+
 #pragma once
 
 #include <inttypes.h>

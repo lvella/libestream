@@ -1,3 +1,6 @@
+/* Author: Brad Conte
+ * File grabbed from: http://bradconte.com/rc4_c.html */
+
 // Key Scheduling Algorithm 
 // Input: state - the state used to generate the keystream
 //        key - Key to use to initialize the state 

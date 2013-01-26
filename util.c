@@ -1,3 +1,6 @@
+/* Author: Lucas Clemente Vella
+ * Source code placed into public domain. */
+
 #include "util.h"
 
 uint32_t

@@ -1,0 +1,8 @@
+All the files contained in this project are placed under
+public domain, except those copied from external sources,
+which I have no control over the distribution.
+
+They are:
+- serpent_bitslice_sbox.h
+- tests/reference_rc4.c
+- tests/*_vec.txt

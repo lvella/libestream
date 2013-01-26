@@ -1,3 +1,6 @@
+/* Author: Lucas Clemente Vella
+ * Source code placed into public domain. */
+
 #include <string.h>
 #include "util.h"
 #include "serpent_bitslice_sbox.h"
