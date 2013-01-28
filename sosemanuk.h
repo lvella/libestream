@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <stdlib.h>
 #include <inttypes.h>
 
 typedef struct
