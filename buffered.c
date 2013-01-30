@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stddef.h>
 #include <string.h>
 #include "hc-128.h"
@@ -22,6 +23,12 @@ CIPHER_SPECIFICS_DEF(sosemanuk, 16)
 
 #undef CIPHER_SPECIFICS_DEF
 
+static int
+is_aligned(void *ptr)
+{
+  return ((unsigned long)ptr & 3u) == 0; /* Multiple of 4 */
+}
+
 void
 buffered_extract(const cipher_attributes *cipher, void *buffered_state,
 		 uint8_t *buffer, size_t len)
@@ -29,6 +36,8 @@ buffered_extract(const cipher_attributes *cipher, void *buffered_state,
   const uint8_t chunk_size = cipher->chunk_size;
   uint8_t count = ((uint8_t*)buffered_state)[cipher->count_offset];
   uint8_t *cbuffer = (uint8_t*)buffered_state + cipher->buffer_offset;
+
+  assert(is_aligned(cbuffer) && "Unaligned buffered_state");
 
   /* First, use up whatever is in the buffer */
   if(count > 0)
@@ -41,13 +50,24 @@ buffered_extract(const cipher_attributes *cipher, void *buffered_state,
     }
 
   /* Then extract while len is multiple of the chunk_size */
-  size_t i;
+  size_t i = len / chunk_size;
   uint8_t remainder = len % chunk_size;
-  for(i = len / chunk_size; i >= 0; --i)
+  /* If aligned correctly, can spare one extra copy. */
+  if(is_aligned(buffer))
     {
-      cipher->extract_func(buffered_state, buffer);
-      buffer += chunk_size;
+      for(; i >= 0; --i)
+      {
+	cipher->extract_func(buffered_state, cbuffer);
+	memcpy(buffer, cbuffer, chunk_size);
+	buffer += chunk_size;
+      }
     }
+  else
+    for(; i >= 0; --i)
+      {
+	cipher->extract_func(buffered_state, buffer);
+	buffer += chunk_size;
+      }
 
   /* Finally, extract the next chunk to state buffer, and fill up the
    * remaining non-multiple bytes. */

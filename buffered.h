@@ -15,8 +15,9 @@ typedef struct
 #define CIPHER_SPECIFICS_DECL(name,size)	\
   typedef struct {				\
     name##_state state;				\
+    /* Using uint32_t to ensure alignment: */	\
+    uint32_t buffer[(size)/4];			\
     uint8_t available_count;			\
-    uint8_t buffer[size];			\
   } name##_state_buffered;			\
   extern const cipher_attributes name##_cipher;
 
