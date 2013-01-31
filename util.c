@@ -33,3 +33,9 @@ unpack_littleendian(uint32_t value, uint8_t *v)
     v[i] = value >> (i * 8);
 #endif
 }
+
+size_t
+min(size_t a, size_t b)
+{
+  return (a < b) ? a : b;
+}
