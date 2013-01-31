@@ -68,7 +68,7 @@ buffered_action(const cipher_attributes *cipher, void *buffered_state,
   /* First, use up whatever is in the buffer */
   if(count > 0)
     {
-      size_t to_copy = (count < len) ? count : len;
+      size_t to_copy = min(count, len);
       memops[op](stream, cbuffer + chunk_size - count , to_copy);
       count -= to_copy;
       len -= to_copy;
