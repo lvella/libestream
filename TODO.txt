@@ -1,0 +1,2 @@
+- Better testing on buffered_skip().
+- Increase chunk size of hc-128 to 64 bytes, in order to dilute overhead.
