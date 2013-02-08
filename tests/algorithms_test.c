@@ -43,7 +43,13 @@ test(const char *name, const char *input, const cipher_attributes *cipher,
 {
   void *state;
   const size_t alignment = sizeof(void*) > 4 ? sizeof(void*) : 4;
-  posix_memalign(&state, alignment, cipher->buffered_state_size);
+  int ret = posix_memalign(&state, alignment, cipher->buffered_state_size);
+  if(ret != 0)
+    {
+      fprintf(stderr, "Error: Could not allocate aligned memory:\n%s\n",
+	      strerror(ret));
+      exit(1);
+    }
 
   int k = 0;
   while(input = strstr(input, "key = ")) {
@@ -87,15 +93,12 @@ test(const char *name, const char *input, const cipher_attributes *cipher,
 
       uint8_t rstream[64];
       read_hex_bytes(&input, rstream, 64);
-      printf("%s, %d, %d: ", name, k, i);
       if(memcmp(rstream, stream, 64)) {
-        puts("mismatch\n  read:");
+	printf("%s, %d, %d: mismatch\n  read:\n", name, k, i);
 	print_hex(rstream, 64);
 	puts("  calculated:");
 	print_hex(stream, 64);
 	exit(1);
-      } else {
-	puts("match!");
       }
     }
 
@@ -119,7 +122,11 @@ perform_test(const char* filename, const cipher_attributes *cipher,
   rewind(fp);
 
   char *data = malloc(size+1);
-  fread(data, 1, size, fp);
+  int ret = fread(data, 1, size, fp);
+  if(ret != size) {
+    fprintf(stderr, "Error reading test vector \"%s\", aborting!\n", filename);
+    exit(1);
+  }
   fclose(fp);
   data[size] = '\0';
 
@@ -185,19 +192,27 @@ init_sosemanuk(sosemanuk_state *state, uint8_t* key,
 
 int main()
 {
+  puts("Running HC-128 test...");
   perform_test("tests/hc-128_test_vec.txt",
 	       &hc128_cipher, (init_func)init_hc128);
 
+  puts("Running Rabbit test...");
   perform_test("tests/rabbit_test_vec.txt",
 	       &rabbit_cipher, (init_func)init_rabbit);
 
+  puts("Running Salsa20/8 test...");
   perform_test("tests/salsa20-8_test_vec.txt",
 	       &salsa20_cipher, (init_func)init_salsa20_8);
+  puts("Running Salsa20/12 test...");
   perform_test("tests/salsa20-12_test_vec.txt",
 	       &salsa20_cipher, (init_func)init_salsa20_12);
+  puts("Running Salsa20/20 test...");
   perform_test("tests/salsa20-20_test_vec.txt",
 	       &salsa20_cipher, (init_func)init_salsa20_20);
 
+  puts("Running Sosemanuk test (much longer than the others)...");
   perform_test("tests/sosemanuk_test_vec.txt",
 	       &sosemanuk_cipher, (init_func)init_sosemanuk);
+
+  puts("All tests passed!");
 }
