@@ -300,6 +300,28 @@ poly128_iteration(const uint128 *key, const uint128 *m, uint128 *y)
     sum_mod_p128(m, y, y);
 }
 
+static uint32_t
+l3_hash(const uint64_t *k1, uint32_t k2, const uint128 *m)
+{
+  static const uint64_t p36 = 0x0000000FFFFFFFFBu;
+  uint64_t y = 0;
+  int i, k;
+
+  /* Skip first iteration if uneeded; the result would be zero anyway.
+     It happens too often, when message is smaller than 16MB. */
+  for(k = (m->v[0] == 0); k < 2; ++k) {
+    for(i = 0; i < 4; ++i)
+      /*Althoug always increasing, y never warps around because operands
+	are too small. */
+      y = y
+	+ (k1[k * 4 + i] % p36) /* Key mod p36. */
+	* ((m->v[k] >> (16 * (3 - i))) /* Shift relevant 16 bit to place. */
+	   & 0xffffu); /* Filter selected 16 lower bits. */
+  }
+
+  return (uint32_t)(y % p36) ^ k2;
+}
+
 static void
 uhash_iter(const uint8_t* l1key, const uint8_t* l2key,
 	   const uint8_t* l3key1, const uint8_t* l3key2,
