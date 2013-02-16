@@ -144,7 +144,7 @@ static uint64_t
 poly64_iteration(uint64_t key, uint64_t m, uint64_t y)
 {
   const uint64_t marker = p64 - 1;
-  const uint64_t maxwordrange = (uint64_t)0u - ((uint64_t)1u << 32);
+  const uint64_t maxwordrange = 0xffffffff00000000u;
 
   y = mul_mod_p64(key, y);
   if(m >= maxwordrange)
@@ -203,6 +203,8 @@ mul128(const uint128 *a, const uint128 *b, uint256 *out)
 }
 
 static const uint64_t offset_p128 = 159;
+static const uint128 marker_p128 = {{0xFFFFFFFFFFFFFFFF,
+				     0xFFFFFFFFFFFFFF60}};
 static const uint128 p128 = {{0xFFFFFFFFFFFFFFFF,
 			      0xFFFFFFFFFFFFFF61}};
 
@@ -278,21 +280,24 @@ mul_mod_p128(const uint128 *x, const uint128 *y, uint128 *out)
 static void
 poly128_iteration(const uint128 *key, const uint128 *m, uint128 *y)
 {
-  const uint64 maxwordrange_msw = 0xffffffff00000000u;
+  const uint64_t maxwordrange_msw = 0xffffffff00000000u;
 
   mul_mod_p128(key, y, y);
-  if(m.v[0] >= maxwordrange_msw)
+  if(m->v[0] >= maxwordrange_msw)
     {
-      sum_mod_p128(marker, y, y);
+      sum_mod_p128(&marker_p128, y, y);
       mul_mod_p128(key, y, y);
-      uint128 tmp;
-      sum_mod_p128(m, minus_offset, tmp);
-      sum_mod_p128(tmp, y, y);
+
+      /* Calculate dif = (m - offset) */
+      uint128 dif = {{m->v[0],
+		      m->v[1] - offset_p128}};
+      if(dif.v[1] > offset_p128)
+	--dif.v[0];
+
+      sum_mod_p128(&dif, y, y);
     }
   else
-    {
-      sum_mod_p128(m, y, y);
-    }
+    sum_mod_p128(m, y, y);
 }
 
 static void
