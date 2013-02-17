@@ -66,11 +66,6 @@ l1_hash_partial_iteration(const uint32_t* key,
   return y + (byte_len * 8u);
 }
 
-typedef struct
-{
-  uint64_t v[2]; /* Big endian; 0: most significant; 1: least significant */
-} uint128;
-
 static void
 mul64(uint64_t a, uint64_t b, uint128 *out)
 {
