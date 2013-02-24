@@ -295,6 +295,19 @@ poly128_iteration(const uint128 *key, const uint128 *m, uint128 *y)
     sum_mod_p128(m, y, y);
 }
 
+static void
+l2_hash_iteration(l2_state *state, uint64_t input, size_t byte_len)
+{
+  if(byte_len <= (1 << 24))
+    {
+      // TO BE CONTINUED...
+    }
+  else
+    {
+      // TO BE CONTINUED...
+    }
+}
+
 static uint32_t
 l3_hash(const uint64_t *k1, uint32_t k2, const uint128 *m)
 {
@@ -317,13 +330,73 @@ l3_hash(const uint64_t *k1, uint32_t k2, const uint128 *m)
   return (uint32_t)(y % p36) ^ k2;
 }
 
-static void
-uhash_iter(const uint8_t* l1key, const uint8_t* l2key,
-	   const uint8_t* l3key1, const uint8_t* l3key2,
-	   const uint8_t *msg, size_t len, uint8_t* out)
+void
+uhash_128_init(uhash_128_state *state)
 {
-  
+  state->byte_len = 0;
+  int i;
+  for(i = 0; i < 4; ++i)
+    {
+      state->l2_partial[i].v[0] = 0;
+      state->l2_partial[i].v[1] = 1;
+    }
 }
+
+static size_t
+copy_input(uint32_t *buffer, size_t *byte_len,
+	   const uint8_t **string, size_t *len)
+{
+#if BIG_ENDIAN
+  /* TODO */
+#else
+  /* TODO */
+#endif
+  size_t read = 0;
+  uint16_t bufsize = *byte_len % 1024u;
+
+  uint16_t rem = bufsize % 4u;
+  uint16_t idx = bufsize / 4u;
+  uint32_t val = rem ? state->buffer[idx] : 0;
+
+  for(; read < *len && idx < 256; ++idx)
+    {
+      for(; rem < 4; ++rem)
+	val |= (uint32_t)((*string)[read++]) << ((3 - rem) * 8);
+      state->buffer[idx] = val;
+      val = 0;
+    }
+
+  byte_len += read;
+  *len -= read;
+  *string += read;
+
+  return read;
+}
+
+void
+uhash_128_update(uhash_128_key *key, uhash_128_state *state,
+		 uint8_t *string, size_t len)
+{
+  /* If the buffer is not full. */
+  if(state->byte_len % 1024 || !state->byte_len)
+    /* Fill it. */
+    copy_input(&state->buffer, &state->byte_len, &string, &len);
+
+  /* While still have more to fill the buffer... */
+  while(len > 0)
+    {
+      int i;
+      for(i = 0; i < 4; ++i)
+	{
+	  uint64_t l1 = l1_hash_full_iteration(&key->l1key[i*4], state->buffer);
+	  // TO BE CONTINUED...
+	}
+      
+      /* Will always have something left unprocessed in the buffer... */
+      copy_input(&state->buffer, &state->byte_len, &string, &len);
+    }
+}
+
 
 #include <stdio.h>
 #include <stdio_ext.h>
