@@ -48,17 +48,17 @@ memxor(uint8_t *dest, const uint8_t *mask, size_t n)
   return NULL;
 }
 
+typedef void *(*memop_func)(void *dest, const void *src, size_t n);
+static const memop_func memops[] =
+  {
+    memcpy,
+    (memop_func)memxor
+  };
+
 void
 buffered_action(const cipher_attributes *cipher, void *buffered_state,
 		uint8_t *stream, size_t len, buffered_ops op)
 {
-  typedef void *(*memop_func)(void *dest, const void *src, size_t n);
-  memop_func memops[] =
-    {
-      memcpy,
-      (memop_func)memxor
-    };
-
   const uint8_t chunk_size = cipher->chunk_size;
   uint8_t count = ((uint8_t*)buffered_state)[cipher->count_offset];
   uint8_t *cbuffer = (uint8_t*)buffered_state + cipher->buffer_offset;

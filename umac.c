@@ -1,4 +1,6 @@
 #include <stddef.h>
+#include "buffered.h"
+
 #include "umac.h"
 
 static uint32_t
@@ -296,22 +298,36 @@ poly128_iteration(const uint128 *key, const uint128 *m, uint128 *y)
 }
 
 static void
-l2_hash_iteration(l2_state *state, uint64_t input, size_t byte_len)
+l2_hash_iteration(const l2_key *key, l2_state *state,
+		  uint64_t input, size_t byte_len)
 {
-  if(byte_len <= (1 << 24))
+  static const uint32_t limit = (1u << 24);
+  if(byte_len <= limit)
     {
-      // TO BE CONTINUED...
+      state->y.v[1] = poly64_iteration(key->k64, input, state->y.v[1]);
+
+      if(byte_len == limit)
+	{
+	  uint128 m = {0, state->y.v[1]};
+	  state->y.v[1] = 1;
+	  poly128_iteration(&key->k128, &m, &state->y);
+	}
+    }
+  else if(byte_len % 2048)
+    {
+      state->tmp = input;
     }
   else
     {
-      // TO BE CONTINUED...
+      uint128 m = {state->tmp, input};
+      poly128_iteration(&key->k128, &m, &state->y);
     }
 }
 
+static const uint64_t p36 = 0x0000000FFFFFFFFBu;
 static uint32_t
 l3_hash(const uint64_t *k1, uint32_t k2, const uint128 *m)
 {
-  static const uint64_t p36 = 0x0000000FFFFFFFFBu;
   uint64_t y = 0;
   int i, k;
 
@@ -322,12 +338,43 @@ l3_hash(const uint64_t *k1, uint32_t k2, const uint128 *m)
       /*Althoug always increasing, y never warps around because operands
 	are too small. */
       y = y
-	+ (k1[k * 4 + i] % p36) /* Key mod p36. */
+	+ k1[k * 4 + i] /* Key (mod p36 done in key initialization). */
 	* ((m->v[k] >> (16 * (3 - i))) /* Shift relevant 16 bit to place. */
 	   & 0xffffu); /* Filter selected 16 lower bits. */
   }
 
   return (uint32_t)(y % p36) ^ k2;
+}
+
+void uhash_128_key_setup(const cipher_attributes *cipher, void *buffered_state,
+			 uhash_128_key *key)
+{
+  buffered_action(cipher, buffered_state, (uint8_t*)key->l1key,
+		  sizeof(key->l1key), BUFFERED_EXTRACT);
+
+  {
+    uint64_t l2_keydata[4*3];
+    buffered_action(cipher, buffered_state, (uint8_t*)l2_keydata,
+		    sizeof(l2_keydata), BUFFERED_EXTRACT);
+
+    int i;
+    for(i = 0; i < 4; ++i)
+      {
+	static const uint64_t keymask = 0x01ffffff01ffffffu;
+	key->l2key[i].k64 = l2_keydata[i*3] & keymask;
+	key->l2key[i].k128.v[0] = l2_keydata[i*3 + 1] & keymask;
+	key->l2key[i].k128.v[1] = l2_keydata[i*3 + 2] & keymask;
+      }
+  }
+
+  buffered_action(cipher, buffered_state, (uint8_t*)key->l3key1,
+		  sizeof(key->l3key1), BUFFERED_EXTRACT);
+  int i;
+  for(i = 0; i < 32; ++i)
+    key->l3key1[i] %= p36;
+
+  buffered_action(cipher, buffered_state, (uint8_t*)key->l3key2,
+		  sizeof(key->l3key2), BUFFERED_EXTRACT);
 }
 
 void
@@ -337,8 +384,8 @@ uhash_128_init(uhash_128_state *state)
   int i;
   for(i = 0; i < 4; ++i)
     {
-      state->l2_partial[i].v[0] = 0;
-      state->l2_partial[i].v[1] = 1;
+      state->l2_partial[i].y.v[0] = 0;
+      state->l2_partial[i].y.v[1] = 1;
     }
 }
 
@@ -356,13 +403,13 @@ copy_input(uint32_t *buffer, size_t *byte_len,
 
   uint16_t rem = bufsize % 4u;
   uint16_t idx = bufsize / 4u;
-  uint32_t val = rem ? state->buffer[idx] : 0;
+  uint32_t val = rem ? buffer[idx] : 0;
 
   for(; read < *len && idx < 256; ++idx)
     {
       for(; rem < 4; ++rem)
 	val |= (uint32_t)((*string)[read++]) << ((3 - rem) * 8);
-      state->buffer[idx] = val;
+      buffer[idx] = val;
       val = 0;
     }
 
@@ -374,13 +421,13 @@ copy_input(uint32_t *buffer, size_t *byte_len,
 }
 
 void
-uhash_128_update(uhash_128_key *key, uhash_128_state *state,
-		 uint8_t *string, size_t len)
+uhash_128_update(const uhash_128_key *key, uhash_128_state *state,
+		 const uint8_t *string, size_t len)
 {
   /* If the buffer is not full. */
   if(state->byte_len % 1024 || !state->byte_len)
     /* Fill it. */
-    copy_input(&state->buffer, &state->byte_len, &string, &len);
+    copy_input(state->buffer, &state->byte_len, &string, &len);
 
   /* While still have more to fill the buffer... */
   while(len > 0)
@@ -388,15 +435,51 @@ uhash_128_update(uhash_128_key *key, uhash_128_state *state,
       int i;
       for(i = 0; i < 4; ++i)
 	{
-	  uint64_t l1 = l1_hash_full_iteration(&key->l1key[i*4], state->buffer);
-	  // TO BE CONTINUED...
+	  uint64_t l1 =
+	    l1_hash_full_iteration(&key->l1key[i*4], state->buffer);
+
+	  l2_hash_iteration(&key->l2key[i], &state->l2_partial[i],
+			    l1, state->byte_len);
 	}
       
       /* Will always have something left unprocessed in the buffer... */
-      copy_input(&state->buffer, &state->byte_len, &string, &len);
+      copy_input(state->buffer, &state->byte_len, &string, &len);
     }
 }
 
+static void
+unpack_bigendian(uint32_t value, uint8_t *out)
+{
+  /* Doesn't have big endian specific code because doesn't require output
+     to be 4 byte aligned. */
+  out[0] = value >> 24;
+  out[1] = value >> 16;
+  out[2] = value >> 8;
+  out[3] = value;
+}
+
+void
+uhash_128_finish(const uhash_128_key *key, uhash_128_state *state, uint8_t *out)
+{
+  int i;
+  for(i = 0; i < 4; ++i)
+    {
+      uint64_t l1 = (!(state->byte_len % 1024) && state->byte_len) ?
+	l1_hash_full_iteration(&key->l1key[i*4], state->buffer) :
+	l1_hash_partial_iteration(&key->l1key[i*4], state->buffer,
+				  state->byte_len % 1024);
+
+      if(state->byte_len > 1024)
+	  l2_hash_iteration(&key->l2key[i], &state->l2_partial[i],
+			    l1, state->byte_len);
+      else
+	state->l2_partial[i].y.v[1] = l1;
+
+      unpack_bigendian(l3_hash(&key->l3key1[i*8], key->l3key2[i],
+			       &state->l2_partial[i].y),
+		       &out[i*4]);
+    }
+}
 
 #include <stdio.h>
 #include <stdio_ext.h>
