@@ -377,18 +377,6 @@ void uhash_128_key_setup(const cipher_attributes *cipher, void *buffered_state,
 		  sizeof(key->l3key2), BUFFERED_EXTRACT);
 }
 
-void
-uhash_128_init(uhash_128_state *state)
-{
-  state->byte_len = 0;
-  int i;
-  for(i = 0; i < 4; ++i)
-    {
-      state->l2_partial[i].y.v[0] = 0;
-      state->l2_partial[i].y.v[1] = 1;
-    }
-}
-
 static size_t
 copy_input(uint32_t *buffer, size_t *byte_len,
 	   const uint8_t **string, size_t *len)
@@ -420,33 +408,6 @@ copy_input(uint32_t *buffer, size_t *byte_len,
   return read;
 }
 
-void
-uhash_128_update(const uhash_128_key *key, uhash_128_state *state,
-		 const uint8_t *string, size_t len)
-{
-  /* If the buffer is not full. */
-  if(state->byte_len % 1024 || !state->byte_len)
-    /* Fill it. */
-    copy_input(state->buffer, &state->byte_len, &string, &len);
-
-  /* While still have more to fill the buffer... */
-  while(len > 0)
-    {
-      int i;
-      for(i = 0; i < 4; ++i)
-	{
-	  uint64_t l1 =
-	    l1_hash_full_iteration(&key->l1key[i*4], state->buffer);
-
-	  l2_hash_iteration(&key->l2key[i], &state->l2_partial[i],
-			    l1, state->byte_len);
-	}
-      
-      /* Will always have something left unprocessed in the buffer... */
-      copy_input(state->buffer, &state->byte_len, &string, &len);
-    }
-}
-
 static void
 unpack_bigendian(uint32_t value, uint8_t *out)
 {
@@ -458,28 +419,77 @@ unpack_bigendian(uint32_t value, uint8_t *out)
   out[3] = value;
 }
 
-void
-uhash_128_finish(const uhash_128_key *key, uhash_128_state *state, uint8_t *out)
-{
-  int i;
-  for(i = 0; i < 4; ++i)
-    {
-      uint64_t l1 = (!(state->byte_len % 1024) && state->byte_len) ?
-	l1_hash_full_iteration(&key->l1key[i*4], state->buffer) :
-	l1_hash_partial_iteration(&key->l1key[i*4], state->buffer,
-				  state->byte_len % 1024);
+#define UHASH_BITS_IMPL(bits)						\
+  void									\
+  uhash_##bits##_init(uhash_##bits##_state *state)			\
+  {									\
+    state->byte_len = 0;						\
+    int i;								\
+    for(i = 0; i < ((bits)/32); ++i)					\
+      {									\
+	state->l2_partial[i].y.v[0] = 0;				\
+	state->l2_partial[i].y.v[1] = 1;				\
+      }									\
+  }									\
+									\
+  void									\
+  uhash_##bits##_update(const uhash_##bits##_key *key,			\
+			uhash_##bits##_state *state,			\
+			const uint8_t *string, size_t len)		\
+  {									\
+    /* If the buffer is not full. */					\
+    if(state->byte_len % 1024 || !state->byte_len)			\
+      /* Fill it. */							\
+      copy_input(state->buffer, &state->byte_len, &string, &len);	\
+									\
+    /* While still have more to fill the buffer... */			\
+    while(len > 0)							\
+      {									\
+	int i;								\
+	for(i = 0; i < ((bits)/32); ++i)				\
+	  {								\
+	    uint64_t l1 =						\
+	      l1_hash_full_iteration(&key->l1key[i*4], state->buffer);	\
+									\
+	    l2_hash_iteration(&key->l2key[i], &state->l2_partial[i],	\
+			      l1, state->byte_len);			\
+	  }								\
+									\
+	/* Will always have something left unprocessed in the buffer... */ \
+	copy_input(state->buffer, &state->byte_len, &string, &len);	\
+      }									\
+  }									\
+									\
+  void									\
+  uhash_##bits##_finish(const uhash_##bits##_key *key,			\
+			uhash_##bits##_state *state, uint8_t *out)	\
+  {									\
+    int i;								\
+    for(i = 0; i < ((bits)/32); ++i)					\
+      {									\
+	uint64_t l1 = (!(state->byte_len % 1024) && state->byte_len) ?	\
+	  l1_hash_full_iteration(&key->l1key[i*4], state->buffer) :	\
+	  l1_hash_partial_iteration(&key->l1key[i*4], state->buffer,	\
+				    state->byte_len % 1024);		\
+									\
+	if(state->byte_len > 1024)					\
+	  l2_hash_iteration(&key->l2key[i], &state->l2_partial[i],	\
+			    l1, state->byte_len);			\
+	else								\
+	  state->l2_partial[i].y.v[1] = l1;				\
+									\
+	unpack_bigendian(l3_hash(&key->l3key1[i*8], key->l3key2[i],	\
+				 &state->l2_partial[i].y),		\
+			 &out[i*4]);					\
+      }									\
+  }
 
-      if(state->byte_len > 1024)
-	  l2_hash_iteration(&key->l2key[i], &state->l2_partial[i],
-			    l1, state->byte_len);
-      else
-	state->l2_partial[i].y.v[1] = l1;
+UHASH_BITS_IMPL(32)
+UHASH_BITS_IMPL(64)
+UHASH_BITS_IMPL(96)
+UHASH_BITS_IMPL(128)
 
-      unpack_bigendian(l3_hash(&key->l3key1[i*8], key->l3key2[i],
-			       &state->l2_partial[i].y),
-		       &out[i*4]);
-    }
-}
+#undef UHASH_BITS_IMPL
 
 #include <stdio.h>
 #include <stdio_ext.h>
