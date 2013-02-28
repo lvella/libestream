@@ -1,19 +1,18 @@
 #include <stddef.h>
+#include <string.h>
 #include "buffered.h"
 
 #include "umac.h"
 
-static uint32_t
-pack_bigendian(const uint8_t *v)
+static void
+unpack_bigendian(uint32_t value, uint8_t *out)
 {
-#ifdef BIG_ENDIAN
-  return *((uint32_t*)v);
-#else
-  return (uint32_t)v[0] << 24
-      | (uint32_t)v[1] << 16
-      | (uint32_t)v[2] << 8
-      | (uint32_t)v[3];
-#endif
+  /* Doesn't have big endian specific code because doesn't require output
+     to be 4 byte aligned. */
+  out[0] = value >> 24;
+  out[1] = value >> 16;
+  out[2] = value >> 8;
+  out[3] = value;
 }
 
 static uint64_t
@@ -37,7 +36,10 @@ l1_hash_full_iteration(const uint32_t* key,
   for(i = 0; i < 256; i += 8)
     y += nh_iteration(key + i, msg + i);
 
-  return y + 8192u;
+  y += 8192u;
+
+  printf("%016lX\n", y);
+  return y;
 }
 
 static uint64_t
@@ -381,42 +383,46 @@ static size_t
 copy_input(uint32_t *buffer, size_t *byte_len,
 	   const uint8_t **string, size_t *len)
 {
-#if BIG_ENDIAN
-  /* TODO */
-#else
-  /* TODO */
-#endif
-  size_t read = 0;
+  size_t read;
   uint16_t bufsize = *byte_len % 1024u;
+
+#ifdef LITTLE_ENDIAN
+  read = *len - bufsize;
+  if(read > 1024)
+    read = 1024;
+  memcpy(buffer, *string, read);
+
+#else
+  if(!*len)
+    return 0;
 
   uint16_t rem = bufsize % 4u;
   uint16_t idx = bufsize / 4u;
   uint32_t val = rem ? buffer[idx] : 0;
 
-  for(; read < *len && idx < 256; ++idx)
+  read = 0;
+  for(; idx < 256; ++idx)
     {
       for(; rem < 4; ++rem)
-	val |= (uint32_t)((*string)[read++]) << ((3 - rem) * 8);
+	{
+	  val |= (uint32_t)((*string)[read++]) << (rem * 8);
+	  if(read >= *len)
+	    {
+	      buffer[idx] = val;
+	      goto end_loop;
+	    } 
+	}
       buffer[idx] = val;
-      val = 0;
+      rem = val = 0;
     }
+ end_loop:
+#endif
 
   byte_len += read;
   *len -= read;
   *string += read;
 
   return read;
-}
-
-static void
-unpack_bigendian(uint32_t value, uint8_t *out)
-{
-  /* Doesn't have big endian specific code because doesn't require output
-     to be 4 byte aligned. */
-  out[0] = value >> 24;
-  out[1] = value >> 16;
-  out[2] = value >> 8;
-  out[3] = value;
 }
 
 #define UHASH_BITS_IMPL(bits)						\
@@ -437,6 +443,8 @@ unpack_bigendian(uint32_t value, uint8_t *out)
 			uhash_##bits##_state *state,			\
 			const uint8_t *string, size_t len)		\
   {									\
+    /* TODO: Avoid copying to the buffer if possible. */		\
+									\
     /* If the buffer is not full. */					\
     if(state->byte_len % 1024 || !state->byte_len)			\
       /* Fill it. */							\
@@ -490,7 +498,7 @@ UHASH_BITS_IMPL(96)
 UHASH_BITS_IMPL(128)
 
 #undef UHASH_BITS_IMPL
-
+/*
 #include <stdio.h>
 #include <stdio_ext.h>
 
@@ -511,3 +519,4 @@ int main()
       }
     }
 }
+*/

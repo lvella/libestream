@@ -38,40 +38,46 @@ def pdf(key, nonce, taglen):
 def split_len(seq, length):
     return [seq[i:i+length] for i in range(0, len(seq), length)]
 
-def keyset(key, taglen):
+def keygen(key, taglen):
     iters = taglen / 4
     l1key = kdf(key, 1, 1024 + (iters - 1) * 16)
     l2key = kdf(key, 2, iters * 24)
     l3key1 = kdf(key, 3, iters * 64)
     l3key2 = kdf(key, 4, iters * 4)
 
-    for (k, i) in zip(split_len(l1key, 4), range(1, 256 + 4 + 1)):
-        #print map(ord, k)
-        print 'K_%d' % i, h(k)
+    return (l1key, l2key, l3key1, l3key2)
 
-    print ''
+def keys_write(key):
+    out = open('uhash_vec_keys.h', 'w')
+    out.write('#include "umac.h"\n\n')
 
-    for k in split_len(l2key, 24):
-        n = struct.unpack('>Q', k[:8])[0] & 0x01ffffff01ffffff
-        print "%016X" % n
+    for bitsize in (32, 64, 96, 128):
+        (l1key, l2key, l3key1, l3key2) = keygen(key, bitsize / 8)
 
-    print ''
+        out.write('uhash_{0}_key key_{0} = {{\n{{\n'.format(bitsize))
+        for k1 in split_len(l1key, 4):
+            out.write('0x{}u,\n'.format(h(k1)))
 
-    for k in split_len(l3key1, 64):
-        for l in split_len(k, 8):
-            n = struct.unpack('>Q', l)[0] % 0xFFFFFFFFB
-            print "%010X" % n
+        out.write('},\n{\n')
+        for k2 in split_len(l2key, 24):
+            vals = [struct.unpack('>Q', x)[0] & 0x01ffffff01ffffff
+                    for x in split_len(k2, 8)]
+            out.write('{{0x{:016X}u, {{ {{0x{:016X}u, 0x{:016X}u }} }} }}, \n'
+                      .format(*vals))
 
-    print ''
+        out.write('},\n{\n')
+        for k3_1 in  split_len(l3key1, 8):
+            val = struct.unpack('>Q', k3_1)[0] % 0xFFFFFFFFB
+            out.write('0x{:08X}u,\n'.format(val))
 
-    for k in split_len(l3key2, 4):
-        print h(k)
+        out.write('},\n{\n')
+        for k3_2 in split_len(l3key2, 4):
+            out.write('0x{}u,\n'.format(h(k3_2)))
 
-    print ''
+        out.write('}};\n\n')
 
 key = "abcdefghijklmnop"
 nonce = "bcdefghi"
-taglen = 8
-keyset(key, taglen)
-print h(pdf(key, nonce, taglen))
+keys_write(key)
+print h(pdf(key, nonce, 8))
 print h(pdf(key, nonce, 16))

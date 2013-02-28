@@ -1,6 +1,8 @@
 #pragma once
 
+#include <stddef.h>
 #include <inttypes.h>
+#include "buffered.h"
 
 /* Internally used structs. */
 
