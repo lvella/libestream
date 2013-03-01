@@ -36,10 +36,7 @@ l1_hash_full_iteration(const uint32_t* key,
   for(i = 0; i < 256; i += 8)
     y += nh_iteration(key + i, msg + i);
 
-  y += 8192u;
-
-  printf("%016lX\n", y);
-  return y;
+  return y + 8192u;
 }
 
 static uint64_t
@@ -61,7 +58,7 @@ l1_hash_partial_iteration(const uint32_t* key,
       uint32_t padded_msg[8] = {0, 0, 0, 0,
 				0, 0, 0, 0};
       int j;
-      for(j = 0; i < remainder; ++j)
+      for(j = 0; j < remainder; ++j)
 	padded_msg[j] = msg[i+j];
 
       y += nh_iteration(key + i, padded_msg);
@@ -387,10 +384,9 @@ copy_input(uint32_t *buffer, size_t *byte_len,
   uint16_t bufsize = *byte_len % 1024u;
 
 #ifdef LITTLE_ENDIAN
-  read = *len - bufsize;
-  if(read > 1024)
-    read = 1024;
-  memcpy(buffer, *string, read);
+  uint16_t left = 1024 - bufsize;
+  read = (*len > left) ? left : *len;
+  memcpy(((uint8_t*)buffer) + bufsize, *string, read);
 
 #else
   if(!*len)
@@ -418,7 +414,7 @@ copy_input(uint32_t *buffer, size_t *byte_len,
  end_loop:
 #endif
 
-  byte_len += read;
+  *byte_len += read;
   *len -= read;
   *string += read;
 
