@@ -31,7 +31,7 @@ def pdf(key, nonce, taglen):
 
     t = cipher.encrypt(nonce)
     if taglen in (4, 8):
-        return t[(taglen*index):][:8]
+        return t[(taglen*index):][:taglen]
     else:
         return t[:taglen]
 
@@ -47,10 +47,7 @@ def keygen(key, taglen):
 
     return (l1key, l2key, l3key1, l3key2)
 
-def keys_write(key):
-    out = open('uhash_vec_keys.h', 'w')
-    out.write('#include "umac.h"\n\n')
-
+def keys_write(key, out):
     for bitsize in (32, 64, 96, 128):
         (l1key, l2key, l3key1, l3key2) = keygen(key, bitsize / 8)
 
@@ -76,8 +73,26 @@ def keys_write(key):
 
         out.write('}};\n\n')
 
-key = "abcdefghijklmnop"
-nonce = "bcdefghi"
-keys_write(key)
-print h(pdf(key, nonce, 8))
-print h(pdf(key, nonce, 16))
+def pads_write(key, nonce, out):
+    pad = pdf(key, nonce, 4)
+    out.write('uint32_t pad32 = 0x{}u;\n\n'.format(h(pad)))
+
+    for i in xrange(2, 4+1):
+        pad = pdf(key, nonce, i*4)
+        out.write('uint32_t pad{}[{}] = {{\n'.format(i*32, i))
+        for c in split_len(pad, 4):
+            out.write('0x{}u,\n'.format(h(c)))
+        out.write('};\n\n')
+
+def main():
+    outfile = open('uhash_vec_keys.h', 'w')
+    outfile.write('#include "umac.h"\n\n')
+
+    key = "abcdefghijklmnop"
+    nonce = "bcdefghi"
+
+    keys_write(key, outfile)
+    pads_write(key, nonce, outfile)
+
+if __name__ == '__main__':
+    main()
