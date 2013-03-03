@@ -1,10 +1,13 @@
-import rijndael
+from Crypto.Cipher import AES
 import struct
 
 """
 *** Experimental Python code for verifying test-vectors.
 *** Veriosn 0.01 (16 March 2006) - Hereby placed in public domain.
 *** Use at your own risk. No warranties, implied or otherwise.
+
+(mostly taken from http://www.fastcrypto.org/front/umac/umac.txt,
+apparently the author is  Ted Krovetz)
 
 - Update only works on 1024 byte blocks. Call repeatedly for longer.
 - Final only works on final blocks of length 1...8192 bits.
@@ -38,8 +41,8 @@ class umac:
 			ct = [ kdfCipher.encrypt('%s%s%s%s' % ('\x00' * 7, chr(index), '\x00' * 7, chr(i+1))) for i in xrange((numbytes+15)//16) ]
 			return (''.join(ct))[ : numbytes]
 		
-		kdfCipher = rijndael.rijndael(umacKey)
-		self.pdfCipher = rijndael.rijndael(kdf(kdfCipher,0,len(umacKey)))
+		kdfCipher = AES.new(umacKey, AES.MODE_ECB)
+		self.pdfCipher = AES.new(kdf(kdfCipher,0,len(umacKey)), AES.MODE_ECB)
 		# L1Key is a sequence of tuples, each (32-bit * 256)
 		L1Key = kdf(kdfCipher, 1, 1024 + (iters - 1) * 16)
 		self.L1Key = [ struct.unpack('>256I', L1Key[16*i:16*i+1024]) for i in xrange(iters) ]
@@ -116,16 +119,17 @@ class umac:
 		self.L1Out = [ list() for i in xrange(self.iters) ] # A sequence of empty lists
 		self.L3Out = list()
 		return result
-		
-u = umac('abcdefghijklmnop', 128)
-x = 'abc' * 500
-n = 'bcdefghi'
-i = 0
-while ( (i+1) * 1024 < len(x) ):
-	u.umacUpdate(x[i*1024:(i+1)*1024])
-	i += 1
-tag = u.umacFinal(x[i*1024:], 8*len(x[i*1024:]), n)
-print tag
+
+def umac_tag(message, key, nonce, taglen):
+	u = umac(key, taglen)
+	x = message
+	n = nonce
+	i = 0
+	while ( (i+1) * 1024 < len(x) ):
+		u.umacUpdate(x[i*1024:(i+1)*1024])
+		i += 1
+	tag = u.umacFinal(x[i*1024:], 8*len(x[i*1024:]), n)
+	return ''.join(['0' * (11 - len(c)) + c[2:-1].upper() for c in tag])
 
 """
 Errata: 'a' * 2**25

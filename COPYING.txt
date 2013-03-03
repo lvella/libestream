@@ -1,6 +1,6 @@
 All the files contained in this project are placed under
-public domain, except those copied from external sources,
-which I have no control over the distribution.
+public domain, except those copied from external sources
+that were not already at public domain.
 
 They are:
 - serpent_bitslice_sbox.h

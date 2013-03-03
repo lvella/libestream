@@ -1,5 +1,6 @@
 from Crypto.Cipher import AES
 import struct
+from umac import umac_tag
 
 def h(str):
     return ''.join(['%02X' % ord(n) for n in str])
@@ -93,6 +94,22 @@ def main():
 
     keys_write(key, outfile)
     pads_write(key, nonce, outfile)
+
+    outfile = open('uhash_test_correct_output.txt', 'w')
+    cases = (('<empty>', ''),
+             ("'a' * 3", 'aaa'),
+             ("'a' * 2^10", 'a' * (1 << 10)),
+             ("'a' * 2^15", 'a' * (1 << 15)),
+             ("'a' * 2^20", 'a' * (1 << 20)),
+             ("'a' * 2^25", 'a' * (1 << 25)),
+             ("'abc' * 1", "abc"),
+             ("'abc' * 500", 'abc' * 500))
+
+    for (case_name, message) in cases:
+        print >>outfile, "Message: %s" % case_name
+        for taglen in (32, 64, 96, 128):
+            tag = umac_tag(message, key, nonce, taglen)
+            print >>outfile,  "%d:%s" % (taglen, tag)
 
 if __name__ == '__main__':
     main()
