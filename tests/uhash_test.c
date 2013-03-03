@@ -19,42 +19,45 @@ void print_hex(uint8_t *str, size_t len, uint32_t *pad)
 
 void run_test(char* name, char *msg, size_t len)
 {
-  uhash_32_state s32;
-  uhash_32_init(&s32);
-
-  uhash_64_state s64;
-  uhash_64_init(&s64);
-
-  uhash_96_state s96;
-  uhash_96_init(&s96);
-
-  uhash_128_state s128;
-  uhash_128_init(&s128);
-
-  uhash_32_update(&key_32, &s32, msg, len);
-  uhash_64_update(&key_64, &s64, msg, len);
-  uhash_96_update(&key_96, &s96, msg, len);
-  uhash_128_update(&key_128, &s128, msg, len);
-
   printf("Message: %s\n", name);
 
   uint8_t out[16];
+  
+  {
+    fputs("32", stdout);
+    uhash_32_state s32;
+    uhash_32_init(&s32);
+    uhash_32_update(&key_32, &s32, msg, len);
+    uhash_32_finish(&key_32, &s32, out);
+    print_hex(out, 4, &pad32);
+  }
 
-  fputs("32", stdout);
-  uhash_32_finish(&key_32, &s32, out);
-  print_hex(out, 4, &pad32);
+  {
+    fputs("64", stdout);
+    uhash_64_state s64;
+    uhash_64_init(&s64);
+    uhash_64_update(&key_64, &s64, msg, len);
+    uhash_64_finish(&key_64, &s64, out);
+    print_hex(out, 8, pad64);
+  }
 
-  fputs("64", stdout);
-  uhash_64_finish(&key_64, &s64, out);
-  print_hex(out, 8, pad64);
+  {
+    fputs("96", stdout);
+    uhash_96_state s96;
+    uhash_96_init(&s96);
+    uhash_96_update(&key_96, &s96, msg, len);
+    uhash_96_finish(&key_96, &s96, out);
+    print_hex(out, 12, pad96);
+  }
 
-  fputs("96", stdout);
-  uhash_96_finish(&key_96, &s96, out);
-  print_hex(out, 12, pad96);
-
-  fputs("128", stdout);
-  uhash_128_finish(&key_128, &s128, out);
-  print_hex(out, 16, pad128);
+  {
+    fputs("128", stdout);
+    uhash_128_state s128;
+    uhash_128_init(&s128);
+    uhash_128_update(&key_128, &s128, msg, len);
+    uhash_128_finish(&key_128, &s128, out);
+    print_hex(out, 16, pad128);
+  }
 }
 
 int main()
