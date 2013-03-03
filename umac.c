@@ -287,7 +287,7 @@ poly128_iteration(const uint128 *key, const uint128 *m, uint128 *y)
       /* Calculate dif = (m - offset) */
       uint128 dif = {{m->v[0],
 		      m->v[1] - offset_p128}};
-      if(dif.v[1] > offset_p128)
+      if(dif.v[1] > m->v[1])
 	--dif.v[0];
 
       sum_mod_p128(&dif, y, y);
