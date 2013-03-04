@@ -62,8 +62,6 @@ void run_test(char* name, char *msg, size_t len)
 
 int main()
 {
-  /* run_test("'abc' * 1", "abc", 3); */ /* If run from here, works. */
-
   run_test("<empty>", "", 0); /* Fail. */
 
   run_test("'a' * 3", "aaa", 3);

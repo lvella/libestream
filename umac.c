@@ -380,18 +380,19 @@ static size_t
 copy_input(uint32_t *buffer, size_t *byte_len,
 	   const uint8_t **string, size_t *len)
 {
+  if(!*len)
+    return 0;
+
   size_t read;
   uint16_t bufsize = *byte_len % 1024u;
 
 #ifdef LITTLE_ENDIAN
   uint16_t left = 1024 - bufsize;
   read = (*len > left) ? left : *len;
+  *(buffer + (bufsize + read - 1) / 4) = 0;
   memcpy(((uint8_t*)buffer) + bufsize, *string, read);
 
 #else
-  if(!*len)
-    return 0;
-
   uint16_t rem = bufsize % 4u;
   uint16_t idx = bufsize / 4u;
   uint32_t val = rem ? buffer[idx] : 0;
