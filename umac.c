@@ -55,8 +55,7 @@ l1_hash_partial_iteration(const uint32_t* key,
 
   if(remainder)
     {
-      uint32_t padded_msg[8] = {0, 0, 0, 0,
-				0, 0, 0, 0};
+      uint32_t padded_msg[8] = {0};
       int j;
       for(j = 0; j < remainder; ++j)
 	padded_msg[j] = msg[i+j];
@@ -472,10 +471,19 @@ copy_input(uint32_t *buffer, size_t *byte_len,
     int i;								\
     for(i = 0; i < ((bits)/32); ++i)					\
       {									\
-	uint64_t l1 = (!(state->byte_len % 1024) && state->byte_len) ?	\
-	  l1_hash_full_iteration(&key->l1key[i*4], state->buffer) :	\
-	  l1_hash_partial_iteration(&key->l1key[i*4], state->buffer,	\
-				    state->byte_len % 1024);		\
+	uint64_t l1;							\
+    									\
+	if(state->byte_len) {						\
+	  l1 = (!(state->byte_len % 1024) && state->byte_len) ?		\
+	    l1_hash_full_iteration(&key->l1key[i*4], state->buffer) :	\
+	    l1_hash_partial_iteration(&key->l1key[i*4], state->buffer,	\
+				      state->byte_len % 1024);		\
+	} else {							\
+	  /* In case of empty string to hash, run one NH iteration   */	\
+	  /* on a zeroed message.                                    */	\
+	  uint32_t msg[8] = {0};					\
+	  l1 = nh_iteration(&key->l1key[i*4], msg);			\
+	}								\
 									\
 	if(state->byte_len > 1024)					\
 	  l2_hash_iteration(&key->l2key[i], &state->l2_partial[i],	\
