@@ -17,10 +17,11 @@ void print_hex(uint8_t *str, size_t len, uint32_t *pad)
   putchar('\n');
 }
 
-void run_test(char* name, char *msg, size_t len)
+void run_test(char* name, char *char_msg, size_t len)
 {
   printf("Message: %s\n", name);
 
+  uint8_t *msg = (uint8_t*)char_msg;
   uint8_t out[16];
   
   {
