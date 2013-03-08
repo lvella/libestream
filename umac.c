@@ -301,18 +301,17 @@ l2_hash_iteration(const l2_key *key, l2_state *state,
 {
   static const uint32_t limit = (1u << 24);
   if(byte_len <= limit)
+    state->y.v[1] = poly64_iteration(key->k64, input, state->y.v[1]);
+  else if(byte_len % 2048 <= 1024)
     {
-      state->y.v[1] = poly64_iteration(key->k64, input, state->y.v[1]);
-
-      if(byte_len == limit)
+      if(byte_len <= ((1u << 24) + 1024))
 	{
+	  /* First chunk after initial 16 MB, must kickstart POLY-128. */
 	  uint128 m = {0, state->y.v[1]};
 	  state->y.v[1] = 1;
 	  poly128_iteration(&key->k128, &m, &state->y);
 	}
-    }
-  else if(byte_len % 2048)
-    {
+
       state->tmp = input;
     }
   else
@@ -320,6 +319,25 @@ l2_hash_iteration(const l2_key *key, l2_state *state,
       uint128 m = {state->tmp, input};
       poly128_iteration(&key->k128, &m, &state->y);
     }
+}
+
+static void
+l2_hash_finish_big(const l2_key *key, l2_state *state, size_t byte_len)
+{
+  uint128 m;
+ 
+  if(byte_len % 2048 <= 1024)
+    {
+      m.v[0] = state->tmp;
+      m.v[1] = 0x8000000000000000u;
+    }
+  else
+    {
+      m.v[0] = 0x8000000000000000u;
+      m.v[1] = 0;
+    }
+
+  poly128_iteration(&key->k128, &m, &state->y);
 }
 
 static const uint64_t p36 = 0x0000000FFFFFFFFBu;
@@ -485,9 +503,14 @@ copy_input(uint32_t *buffer, size_t *byte_len,
 	  l1 = nh_iteration(&key->l1key[i*4], msg);			\
 	}								\
 									\
-	if(state->byte_len > 1024)					\
+	if(state->byte_len > 1024) {					\
 	  l2_hash_iteration(&key->l2key[i], &state->l2_partial[i],	\
 			    l1, state->byte_len);			\
+									\
+	  if(state->byte_len > (1u << 24))				\
+	    l2_hash_finish_big(&key->l2key[i], &state->l2_partial[i],	\
+			       state->byte_len);			\
+	}								\
 	else								\
 	  state->l2_partial[i].y.v[1] = l1;				\
 									\
