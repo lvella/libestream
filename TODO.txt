@@ -4,3 +4,4 @@
 - On uhash_<bits>_update, aviod copying string to buffer if possible.
 - Find some way to test umac better. Reference implementation seems broken
 when (m >= maxwordrange) on POLY algorithm (rarelly occurs, I don't know of any case, neither how to craft it). Test vectors doesn't cover all branches.
+- Better organize directory structure, specially tests.
