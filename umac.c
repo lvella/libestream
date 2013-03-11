@@ -302,7 +302,7 @@ l2_hash_iteration(const l2_key *key, l2_state *state,
   static const uint32_t limit = (1u << 24);
   if(byte_len <= limit)
     state->y.v[1] = poly64_iteration(key->k64, input, state->y.v[1]);
-  else if(byte_len % 2048 <= 1024)
+  else if((byte_len % 2048) && (byte_len % 2048) <= 1024)
     {
       if(byte_len <= ((1u << 24) + 1024))
 	{
@@ -325,8 +325,8 @@ static void
 l2_hash_finish_big(const l2_key *key, l2_state *state, size_t byte_len)
 {
   uint128 m;
- 
-  if(byte_len % 2048 <= 1024)
+
+  if((byte_len % 2048) && (byte_len % 2048 <= 1024))
     {
       m.v[0] = state->tmp;
       m.v[1] = 0x8000000000000000u;
