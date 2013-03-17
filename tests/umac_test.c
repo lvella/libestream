@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include "uhash_vec_keys.h"
+#include "umac_vec_keys.h"
 
 void print_hex(uint8_t *str, size_t len, uint32_t *pad)
 {
@@ -73,7 +73,7 @@ int main()
   run_test("'a' * 2^10", buf, 1 << 10);
   run_test("'a' * 2^15", buf, 1 << 15);
   run_test("'a' * 2^20", buf, 1 << 20);
-  run_test("'a' * 2^25", buf, 1 << 25); /* Fail. */
+  run_test("'a' * 2^25", buf, 1 << 25);
 
   run_test("'abc' * 1", "abc", 3);
 

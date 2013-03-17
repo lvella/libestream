@@ -1,6 +1,11 @@
+#!/usr/bin/python
+
 from Crypto.Cipher import AES
 import struct
 from umac import umac_tag
+import os
+
+script_path = os.path.dirname(os.path.realpath(__file__))
 
 def h(str):
     return ''.join(['%02X' % ord(n) for n in str])
@@ -86,7 +91,7 @@ def pads_write(key, nonce, out):
         out.write('};\n\n')
 
 def main():
-    outfile = open('uhash_vec_keys.h', 'w')
+    outfile = open('{}/../umac_vec_keys.h'.format(script_path), 'w')
     outfile.write('#include "umac.h"\n\n')
 
     key = "abcdefghijklmnop"
@@ -95,7 +100,8 @@ def main():
     keys_write(key, outfile)
     pads_write(key, nonce, outfile)
 
-    outfile = open('uhash_test_correct_output.txt', 'w')
+    outfile = open('{}/../test_vectors/umac_test_vec.txt'.format(script_path),
+                   'w')
     cases = (('<empty>', ''),
              ("'a' * 3", 'aaa'),
              ("'a' * 2^10", 'a' * (1 << 10)),

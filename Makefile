@@ -1,7 +1,7 @@
 CFLAGS = -Ofast -flto
 
-LIB_OBJS := buffered.o hc-128.o rabbit.o salsa20.o sosemanuk.o util.o
-TESTS := algorithms_test buffering_test
+LIB_OBJS := buffered.o hc-128.o rabbit.o salsa20.o sosemanuk.o util.o umac.o
+TESTS := algorithms_test buffering_test umac_test
 
 libestream.a: $(LIB_OBJS)
 	ar rcs libestream.a $(LIB_OBJS)

@@ -4,5 +4,10 @@ that were not already at public domain.
 
 They are:
 - serpent_bitslice_sbox.h
-- tests/reference_rc4.c
-- tests/*_vec.txt
+- tests/reference/rc4.c
+- tests/test_vectors/hc-128_test_vec.txt
+- tests/test_vectors/rabbit_test_vec.txt
+- tests/test_vectors/salsa20-12_test_vec.txt
+- tests/test_vectors/salsa20-20_test_vec.txt
+- tests/test_vectors/salsa20-8_test_vec.txt
+- tests/test_vectors/sosemanuk_test_vec.txt
