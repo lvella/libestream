@@ -362,15 +362,15 @@ l3_hash(const uint64_t *k1, uint32_t k2, const uint128 *m)
   return (uint32_t)(y % p36) ^ k2;
 }
 
-void uhash_128_key_setup(const cipher_attributes *cipher, void *buffered_state,
-			 uhash_128_key *key)
+void
+uhash_128_key_setup(buffered_state *full_state, uhash_128_key *key)
 {
-  buffered_action(cipher, buffered_state, (uint8_t*)key->l1key,
+  buffered_action(full_state, (uint8_t*)key->l1key,
 		  sizeof(key->l1key), BUFFERED_EXTRACT);
 
   {
     uint64_t l2_keydata[4*3];
-    buffered_action(cipher, buffered_state, (uint8_t*)l2_keydata,
+    buffered_action(full_state, (uint8_t*)l2_keydata,
 		    sizeof(l2_keydata), BUFFERED_EXTRACT);
 
     int i;
@@ -383,13 +383,13 @@ void uhash_128_key_setup(const cipher_attributes *cipher, void *buffered_state,
       }
   }
 
-  buffered_action(cipher, buffered_state, (uint8_t*)key->l3key1,
+  buffered_action(full_state, (uint8_t*)key->l3key1,
 		  sizeof(key->l3key1), BUFFERED_EXTRACT);
   int i;
   for(i = 0; i < 32; ++i)
     key->l3key1[i] %= p36;
 
-  buffered_action(cipher, buffered_state, (uint8_t*)key->l3key2,
+  buffered_action(full_state, (uint8_t*)key->l3key2,
 		  sizeof(key->l3key2), BUFFERED_EXTRACT);
 }
 

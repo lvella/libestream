@@ -1,4 +1,5 @@
-CFLAGS = -Ofast -flto
+#CFLAGS = -Ofast -flto
+CFLAGS = -g
 
 LIB_OBJS := buffered.o hc-128.o rabbit.o salsa20.o sosemanuk.o util.o umac.o
 TESTS := algorithms_test buffering_test umac_test

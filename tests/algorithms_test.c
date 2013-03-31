@@ -38,18 +38,22 @@ typedef void (*init_func) (void *state, uint8_t* key, uint8_t* iv,
 			   size_t keylen);
 
 static void
-test(const char *name, const char *input, const cipher_attributes *cipher,
+test(const char *name, const char *input, buffered_cipher cipher,
      init_func init)
 {
   void *state;
   const size_t alignment = sizeof(void*) > 4 ? sizeof(void*) : 4;
-  int ret = posix_memalign(&state, alignment, cipher->buffered_state_size);
+  int ret = posix_memalign(&state, alignment,
+      cipher_attributes_map[cipher]->buffered_state_size);
   if(ret != 0)
     {
       fprintf(stderr, "Error: Could not allocate aligned memory:\n%s\n",
 	      strerror(ret));
       exit(1);
     }
+
+  buffered_state *buf_state = (buffered_state *)state;
+  void *cipher_state = buffered_get_cipher_state(buf_state);
 
   int k = 0;
   while(input = strstr(input, "key = ")) {
@@ -65,8 +69,8 @@ test(const char *name, const char *input, const cipher_attributes *cipher,
     memset(iv, 0, 32);
     read_hex_bytes(&input, iv, 32);
 
-    ((uint8_t*)state)[cipher->count_offset] = 0;
-    init(state, key, iv, keysize);
+    buffered_init_header(buf_state, cipher);
+    init(cipher_state, key, iv, keysize);
 
     size_t gen_bytes = 0;
     int i;
@@ -84,11 +88,11 @@ test(const char *name, const char *input, const cipher_attributes *cipher,
       if(gen_bytes < from)
 	{
 	  size_t ammount = from - gen_bytes;
-	  buffered_skip(cipher, state, ammount);
+	  buffered_skip(buf_state, ammount);
 	  gen_bytes += ammount;
 	}
 
-      buffered_action(cipher, state, stream, 64, BUFFERED_EXTRACT);
+      buffered_action(buf_state, stream, 64, BUFFERED_EXTRACT);
       gen_bytes += 64;
 
       uint8_t rstream[64];
@@ -113,7 +117,7 @@ test(const char *name, const char *input, const cipher_attributes *cipher,
 }
 
 static void
-perform_test(const char* filename, const cipher_attributes *cipher,
+perform_test(const char* filename, buffered_cipher cipher,
 	     init_func init)
 {
   FILE *fp = fopen(filename, "r");
@@ -193,26 +197,26 @@ init_sosemanuk(sosemanuk_state *state, uint8_t* key,
 int main()
 {
   puts("Running HC-128 test...");
-  perform_test("tests/hc-128_test_vec.txt",
-	       &hc128_cipher, (init_func)init_hc128);
+  perform_test("tests/test_vectors/hc-128_test_vec.txt",
+	       HC128, (init_func)init_hc128);
 
   puts("Running Rabbit test...");
-  perform_test("tests/rabbit_test_vec.txt",
-	       &rabbit_cipher, (init_func)init_rabbit);
+  perform_test("tests/test_vectors/rabbit_test_vec.txt",
+	       RABBIT, (init_func)init_rabbit);
 
   puts("Running Salsa20/8 test...");
-  perform_test("tests/salsa20-8_test_vec.txt",
-	       &salsa20_cipher, (init_func)init_salsa20_8);
+  perform_test("tests/test_vectors/salsa20-8_test_vec.txt",
+	       SALSA20, (init_func)init_salsa20_8);
   puts("Running Salsa20/12 test...");
-  perform_test("tests/salsa20-12_test_vec.txt",
-	       &salsa20_cipher, (init_func)init_salsa20_12);
+  perform_test("tests/test_vectors/salsa20-12_test_vec.txt",
+	       SALSA20, (init_func)init_salsa20_12);
   puts("Running Salsa20/20 test...");
-  perform_test("tests/salsa20-20_test_vec.txt",
-	       &salsa20_cipher, (init_func)init_salsa20_20);
+  perform_test("tests/test_vectors/salsa20-20_test_vec.txt",
+	       SALSA20, (init_func)init_salsa20_20);
 
   puts("Running Sosemanuk test (much longer than the others)...");
-  perform_test("tests/sosemanuk_test_vec.txt",
-	       &sosemanuk_cipher, (init_func)init_sosemanuk);
+  perform_test("tests/test_vectors/sosemanuk_test_vec.txt",
+	       SOSEMANUK, (init_func)init_sosemanuk);
 
   puts("All tests passed!");
 }

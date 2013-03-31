@@ -7,10 +7,12 @@
 #define CIPHER_SPECIFICS_DEF(name,size)					\
   const cipher_attributes name##_cipher = {				\
     .extract_func = (extract_func_type)name##_extract,			\
-    .buffered_state_size = sizeof(name##_state_buffered),		\
-    .count_offset = offsetof(name##_state_buffered, available_count),	\
-    .buffer_offset = offsetof(name##_state_buffered, buffer),		\
+    .buffered_state_size = sizeof(name##_buffered_state),		\
+    .buffer_offset = offsetof(name##_buffered_state, buffer),		\
     .chunk_size = size							\
+  };									\
+  const name##_buffered_state name##_static_initializer = {		\
+      .header = { .cipher = &name##_cipher, .available_count = 0 }	\
   };
 
 CIPHER_SPECIFICS_DEF(hc128, 4)
@@ -19,6 +21,32 @@ CIPHER_SPECIFICS_DEF(salsa20, 64)
 CIPHER_SPECIFICS_DEF(sosemanuk, 16)
 
 #undef CIPHER_SPECIFICS_DEF
+
+const cipher_attributes *cipher_attributes_map[LAST_CIPHER+1] = {
+    &hc128_cipher,
+    &rabbit_cipher,
+    &salsa20_cipher,
+    &sosemanuk_cipher
+};
+
+void *
+buffered_get_cipher_state(buffered_state *full_state)
+{
+  return (uint8_t*)full_state + sizeof(buffered_state);
+}
+
+void
+buffered_init_header(buffered_state *state_header, buffered_cipher cipher)
+{
+  state_header->cipher = cipher_attributes_map[(int)cipher];
+  state_header->available_count = 0;
+}
+
+void
+buffered_reset(buffered_state *state_header)
+{
+  state_header->available_count = 0;
+}
 
 static int
 is_aligned(void *ptr)
@@ -56,20 +84,22 @@ static const memop_func memops[] =
   };
 
 void
-buffered_action(const cipher_attributes *cipher, void *buffered_state,
-		uint8_t *stream, size_t len, buffered_ops op)
+buffered_action(buffered_state *full_state, uint8_t *stream, size_t len, buffered_ops op)
 {
-  const uint8_t chunk_size = cipher->chunk_size;
-  uint8_t count = ((uint8_t*)buffered_state)[cipher->count_offset];
-  uint8_t *cbuffer = (uint8_t*)buffered_state + cipher->buffer_offset;
+  const uint8_t chunk_size = full_state->cipher->chunk_size;
 
+  uint8_t *cbuffer = (uint8_t*)full_state + full_state->cipher->buffer_offset;
   assert(is_aligned(cbuffer) && "Unaligned buffered_state");
+
+  void *cipher_state = buffered_get_cipher_state(full_state);
+
+  uint8_t count = full_state->available_count;
 
   /* First, use up whatever is in the buffer */
   if(count > 0)
     {
       size_t to_copy = min(count, len);
-      memops[op](stream, cbuffer + chunk_size - count , to_copy);
+      memops[op](stream, cbuffer + chunk_size - count, to_copy);
       count -= to_copy;
       len -= to_copy;
       stream += to_copy;
@@ -82,13 +112,13 @@ buffered_action(const cipher_attributes *cipher, void *buffered_state,
   if(op == BUFFERED_EXTRACT && is_aligned(stream))
     for(; i > 0; --i)
       {
-	cipher->extract_func(buffered_state, stream);
+	full_state->cipher->extract_func(cipher_state, stream);
 	stream += chunk_size;
       }
   else
     for(; i > 0; --i)
       {
-	cipher->extract_func(buffered_state, cbuffer);
+	full_state->cipher->extract_func(cipher_state, cbuffer);
 	memops[op](stream, cbuffer, chunk_size);
 	stream += chunk_size;
       }
@@ -97,38 +127,36 @@ buffered_action(const cipher_attributes *cipher, void *buffered_state,
    * remaining non-multiple bytes. */
   if(remainder)
     {
-      cipher->extract_func(buffered_state, cbuffer);
+      full_state->cipher->extract_func(cipher_state, cbuffer);
       memops[op](stream, cbuffer, remainder);
       count = chunk_size - remainder;
     }
 
-  ((uint8_t*)buffered_state)[cipher->count_offset] = count;
+  full_state->available_count = count;
 }
 
-void buffered_skip(const cipher_attributes *cipher, void *buffered_state,
-		   size_t len)
+void buffered_skip(buffered_state *full_state, size_t len)
 {
-  const uint8_t chunk_size = cipher->chunk_size;
-  uint8_t count = ((uint8_t*)buffered_state)[cipher->count_offset];
-  uint8_t *cbuffer = (uint8_t*)buffered_state + cipher->buffer_offset;
+  const uint8_t chunk_size = full_state->cipher->chunk_size;
+  uint8_t *cbuffer = (uint8_t*)full_state + full_state->cipher->buffer_offset;
+  void *cipher_state = buffered_get_cipher_state(full_state);
 
-  if(len <= count)
-      count -= len;
+  if(len <= full_state->available_count)
+    full_state->available_count -= len;
   else
     {
-      len -= count;
-      count = 0;
+      len -= full_state->available_count;
+      full_state->available_count = 0;
       
       int i;
       uint8_t remainder = len % chunk_size;
       for(i = len / chunk_size; i > 0; --i)
-	cipher->extract_func(buffered_state, cbuffer);
+	full_state->cipher->extract_func(cipher_state, cbuffer);
 
       if(remainder)
 	{
-	  cipher->extract_func(buffered_state, cbuffer);
-	  count = chunk_size - remainder;
+	  full_state->cipher->extract_func(cipher_state, cbuffer);
+	  full_state->available_count = chunk_size - remainder;
 	}
     }
-  ((uint8_t*)buffered_state)[cipher->count_offset] = count;
 }

@@ -41,8 +41,7 @@ typedef struct
     l2_state l2_partial[(bits)/32];					\
   } uhash_##bits##_state;						\
 									\
-  void uhash_##bits##_key_setup(const cipher_attributes *cipher,	\
-				void *buffered_state,			\
+  void uhash_##bits##_key_setup(buffered_state *full_state,		\
 				uhash_##bits##_key *key);		\
   									\
   void uhash_##bits##_init(uhash_##bits##_state *state);		\
