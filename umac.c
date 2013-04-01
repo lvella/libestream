@@ -362,37 +362,6 @@ l3_hash(const uint64_t *k1, uint32_t k2, const uint128 *m)
   return (uint32_t)(y % p36) ^ k2;
 }
 
-void
-uhash_128_key_setup(buffered_state *full_state, uhash_128_key *key)
-{
-  buffered_action(full_state, (uint8_t*)key->l1key,
-		  sizeof(key->l1key), BUFFERED_EXTRACT);
-
-  {
-    uint64_t l2_keydata[4*3];
-    buffered_action(full_state, (uint8_t*)l2_keydata,
-		    sizeof(l2_keydata), BUFFERED_EXTRACT);
-
-    int i;
-    for(i = 0; i < 4; ++i)
-      {
-	static const uint64_t keymask = 0x01ffffff01ffffffu;
-	key->l2key[i].k64 = l2_keydata[i*3] & keymask;
-	key->l2key[i].k128.v[0] = l2_keydata[i*3 + 1] & keymask;
-	key->l2key[i].k128.v[1] = l2_keydata[i*3 + 2] & keymask;
-      }
-  }
-
-  buffered_action(full_state, (uint8_t*)key->l3key1,
-		  sizeof(key->l3key1), BUFFERED_EXTRACT);
-  int i;
-  for(i = 0; i < 32; ++i)
-    key->l3key1[i] %= p36;
-
-  buffered_action(full_state, (uint8_t*)key->l3key2,
-		  sizeof(key->l3key2), BUFFERED_EXTRACT);
-}
-
 static size_t
 copy_input(uint32_t *buffer, size_t *byte_len,
 	   const uint8_t **string, size_t *len)
@@ -440,6 +409,38 @@ copy_input(uint32_t *buffer, size_t *byte_len,
 }
 
 #define UHASH_BITS_IMPL(bits)						\
+  void									\
+  uhash_##bits##_key_setup(buffered_state *full_state,			\
+			   uhash_##bits##_key *key)			\
+  {									\
+    buffered_action(full_state, (uint8_t*)key->l1key,			\
+		    sizeof(key->l1key), BUFFERED_EXTRACT);		\
+									\
+    {									\
+      uint64_t l2_keydata[3*((bits)/32)];				\
+      buffered_action(full_state, (uint8_t*)l2_keydata,			\
+		      sizeof(l2_keydata), BUFFERED_EXTRACT);		\
+									\
+      int i;								\
+      for(i = 0; i < ((bits)/32); ++i)					\
+	{								\
+	  static const uint64_t keymask = 0x01ffffff01ffffffu;		\
+	  key->l2key[i].k64 = l2_keydata[i*3] & keymask;		\
+	  key->l2key[i].k128.v[0] = l2_keydata[i*3 + 1] & keymask;	\
+	  key->l2key[i].k128.v[1] = l2_keydata[i*3 + 2] & keymask;	\
+	}								\
+    }									\
+									\
+    buffered_action(full_state, (uint8_t*)key->l3key1,			\
+		    sizeof(key->l3key1), BUFFERED_EXTRACT);		\
+    int i;								\
+    for(i = 0; i < (bits)/4; ++i)					\
+      key->l3key1[i] %= p36;						\
+									\
+    buffered_action(full_state, (uint8_t*)key->l3key2,			\
+		    sizeof(key->l3key2), BUFFERED_EXTRACT);		\
+  }									\
+									\
   void									\
   uhash_##bits##_init(uhash_##bits##_state *state)			\
   {									\
