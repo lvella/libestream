@@ -15,12 +15,14 @@ typedef struct
   uhash_init_func uhash_init;
   uhash_update_func uhash_update;
   uhash_finish_func uhash_finish;
+  uint8_t uhash_byte_size;
 } signer_context;
 
 /** Encrypt, sign and send a buffer via a socket.
  *
+ * The buffer will be encrypted in place, so the original data will be overwritten...
  */
-size_t enc_sign_send(signer_context *ctx, int socket, const uint8_t *buffer, size_t len);
+size_t enc_sign_send(signer_context *ctx, int socket, uint8_t *buffer, uint32_t len);
 
 /** Receive, decrypt and verify a buffer sent via socket.
  *

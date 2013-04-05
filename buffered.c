@@ -36,7 +36,7 @@ buffered_get_cipher_state(buffered_state *full_state)
 }
 
 void
-buffered_init_header(buffered_state *state_header, buffered_cipher cipher)
+buffered_init_header(buffered_state *state_header, cipher_type cipher)
 {
   state_header->cipher = cipher_attributes_map[(int)cipher];
   state_header->available_count = 0;

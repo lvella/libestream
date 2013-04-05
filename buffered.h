@@ -1,6 +1,7 @@
 #pragma once
 
 #include <inttypes.h>
+#include "algorithms.h"
 #include "hc-128.h"
 #include "rabbit.h"
 #include "salsa20.h"
@@ -45,14 +46,6 @@ typedef enum
   BUFFERED_ENCDEC
 } buffered_ops;
 
-typedef enum
-{
-  HC128,
-  RABBIT,
-  SALSA20,
-  SOSEMANUK,
-  LAST_CIPHER = SOSEMANUK
-} buffered_cipher;
 extern const cipher_attributes *cipher_attributes_map[LAST_CIPHER+1];
 
 /** Gets the address of the cipher state contained in the buffered state.
@@ -81,7 +74,7 @@ void *buffered_get_cipher_state(buffered_state *full_state);
  * coincide) that must be initialized.
  * @param cipher The cipher corresponding to the type of the buffered state.
  */
-void buffered_init_header(buffered_state *state_header, buffered_cipher cipher);
+void buffered_init_header(buffered_state *state_header, cipher_type cipher);
 
 /** Resets an buffered state to its initial state.
  *

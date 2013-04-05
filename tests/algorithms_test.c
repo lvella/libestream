@@ -38,7 +38,7 @@ typedef void (*init_func) (void *state, uint8_t* key, uint8_t* iv,
 			   size_t keylen);
 
 static void
-test(const char *name, const char *input, buffered_cipher cipher,
+test(const char *name, const char *input, cipher_type cipher,
      init_func init)
 {
   void *state;
@@ -117,7 +117,7 @@ test(const char *name, const char *input, buffered_cipher cipher,
 }
 
 static void
-perform_test(const char* filename, buffered_cipher cipher,
+perform_test(const char* filename, cipher_type cipher,
 	     init_func init)
 {
   FILE *fp = fopen(filename, "r");
