@@ -7,9 +7,13 @@ typedef void (*uhash_init_func)(void *state);
 typedef void (*uhash_update_func)(const void *key,void *state, const uint8_t *string, size_t len);
 typedef void (*uhash_finish_func)(const void *key, void *state, uint8_t *out);
 
+typedef void (*send_callback_func)(void *send_parameter, uint8_t *buffer, uint16_t len);
+
 typedef struct
 {
   buffered_state *cipher_state;
+  send_callback_func send_callback;
+
   void *uhash_key;
   void *uhash_state;
   uhash_init_func uhash_init;
@@ -20,9 +24,8 @@ typedef struct
 
 /** Encrypt, sign and send a buffer via a socket.
  *
- * The buffer will be encrypted in place, so the original data will be overwritten...
  */
-size_t enc_sign_send(signer_context *ctx, int socket, uint8_t *buffer, uint32_t len);
+void enc_sign_send(signer_context *ctx, void *send_param, const uint8_t *buffer, uint32_t len);
 
 /** Receive, decrypt and verify a buffer sent via socket.
  *
