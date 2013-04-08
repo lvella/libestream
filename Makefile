@@ -1,7 +1,7 @@
 #CFLAGS = -Ofast -flto
 CFLAGS = -g
 
-LIB_OBJS := buffered.o hc-128.o rabbit.o salsa20.o sosemanuk.o util.o umac.o
+LIB_OBJS := buffered.o hc-128.o protocol.o rabbit.o salsa20.o sosemanuk.o util.o umac.o
 TESTS := algorithms_test buffering_test umac_test
 
 .PHONY : all tests clean
