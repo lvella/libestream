@@ -10,7 +10,7 @@
 #define WORK_BUFFER_SIZE (4096)
 
 void
-enc_sign_send(signer_context *ctx, void *send_param, const uint8_t *msg_buff, uint32_t len)
+signed_send(signer_context *ctx, void *send_param, const uint8_t *msg_buff, uint32_t len)
 {
   uint8_t buffer[WORK_BUFFER_SIZE];
   uint16_t buff_used;
@@ -100,8 +100,8 @@ mac_verify(signer_context *ctx, void *recv_param)
   return memcmp(mac_recv, mac_calc, ctx->uhash_byte_size) == 0;
 }
 
-ReceiveStatus
-recv_dec_verify(signer_context *ctx, void *recv_param, uint8_t **buffer, uint32_t *size)
+SignerReceiveStatus
+signed_recv(signer_context *ctx, void *recv_param, uint8_t **buffer, uint32_t *size)
 {
   *buffer = NULL;
 
@@ -114,7 +114,7 @@ recv_dec_verify(signer_context *ctx, void *recv_param, uint8_t **buffer, uint32_
   *size = le32toh(*size);
   if(*size > 1024) {
       if(!mac_verify(ctx, recv_param))
-	return FAILED_MAC_VERIFY;
+	return SIGNER_RECV_VERIFY_FAILED;
 
       ctx->uhash_init(ctx->uhash_state);
   }
@@ -122,7 +122,7 @@ recv_dec_verify(signer_context *ctx, void *recv_param, uint8_t **buffer, uint32_
   /* Size was properly signed, we can malloc. */
   *buffer = malloc(*size);
   if(!*buffer)
-    return MESSAGE_ALLOCATION_FAILED;
+    return SIGNER_ALLOC_FAILED;
 
   {
       uint32_t received = 0;
@@ -143,8 +143,8 @@ recv_dec_verify(signer_context *ctx, void *recv_param, uint8_t **buffer, uint32_
   if(!mac_verify(ctx, recv_param)) {
       free(*buffer);
       *buffer = NULL;
-      return FAILED_MAC_VERIFY;
+      return SIGNER_RECV_VERIFY_FAILED;
   }
 
-  return SUCCESS;
+  return SIGNER_RECV_SUCCESS;
 }

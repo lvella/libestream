@@ -150,15 +150,15 @@ static void *receiver_loop(full_context *inbound)
   uint8_t *ptr;
   uint32_t size;
 
-  ReceiveStatus ret = recv_dec_verify(&inbound->signer, &sock, &ptr, &size);
-  while(ret == SUCCESS)
+  SignerReceiveStatus ret = signed_recv(&inbound->signer, &sock, &ptr, &size);
+  while(ret == SIGNER_RECV_SUCCESS)
   {
     fwrite(ptr, 1, size, stdout);
     free(ptr);
     ptr = NULL;
   }
 
-  if(ret == FAILED_MAC_VERIFY) {
+  if(ret == SIGNER_RECV_VERIFY_FAILED) {
     fputs("It seems there is an attacker is tampering with the received data.\n", stderr);
   } else {
     fputs("Could not allocate enough memory for incoming message.\n", stderr);
@@ -231,7 +231,7 @@ static void run_communication()
     uint8_t buff[4096];
     size_t count = fread(buff, 1, 4096, stdin);
     while(count > 0) {
-      enc_sign_send(&outbound.signer, &sock, buff, count);
+      signed_send(&outbound.signer, &sock, buff, count);
       count = fread(buff, 1, 4096, stdin);
     }
     if(!feof(stdin)) {

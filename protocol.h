@@ -26,19 +26,19 @@ typedef struct
 
 typedef enum
 {
-  SUCCESS,
-  FAILED_MAC_VERIFY,
-  MESSAGE_ALLOCATION_FAILED
-} ReceiveStatus;
+  SIGNER_RECV_SUCCESS,
+  SIGNER_RECV_VERIFY_FAILED,
+  SIGNER_ALLOC_FAILED
+} SignerReceiveStatus;
 
 /** Encrypt, sign and send a buffer via a socket.
  *
  */
-void enc_sign_send(signer_context *ctx, void *send_param, const uint8_t *buffer, uint32_t len);
+void signed_send(signer_context *ctx, void *send_param, const uint8_t *buffer, uint32_t len);
 
 /** Receive, decrypt and verify a buffer sent via socket.
  *
  * @param buffer A pointer to where to store the address of the newly allocated buffer
  * containing the received message. Must be freed with free().
  */
-ReceiveStatus recv_dec_verify(signer_context *ctx, void *recv_param, uint8_t **buffer, uint32_t *size);
+SignerReceiveStatus signed_recv(signer_context *ctx, void *recv_param, uint8_t **buffer, uint32_t *size);
