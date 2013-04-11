@@ -154,8 +154,9 @@ static void *receiver_loop(full_context *inbound)
   while(ret == SIGNER_RECV_SUCCESS)
   {
     fwrite(ptr, 1, size, stdout);
+    fflush(stdout);
     free(ptr);
-    ptr = NULL;
+    ret = signed_recv(&inbound->signer, &sock, &ptr, &size);
   }
 
   if(ret == SIGNER_RECV_VERIFY_FAILED) {
@@ -229,13 +230,13 @@ static void run_communication()
   /* Loop reading user input and sending messages. */
   {
     uint8_t buff[4096];
-    size_t count = fread(buff, 1, 4096, stdin);
+    ssize_t count = read(STDIN_FILENO, buff, 4096);
     while(count > 0) {
       signed_send(&outbound.signer, &sock, buff, count);
-      count = fread(buff, 1, 4096, stdin);
+      count = read(STDIN_FILENO, buff, 4096);
     }
-    if(!feof(stdin)) {
-      fputs("Error reading input; aborting.\n", stderr);
+    if(count < 0) {
+      perror("Error reading input");
       exit(EXIT_FAILURE);
     }
   }
