@@ -111,7 +111,7 @@ recv_dec_verify(signer_context *ctx, void *recv_param, uint8_t **buffer, uint32_
   ctx->uhash_init(ctx->uhash_state);
   ctx->uhash_update(ctx->uhash_key, ctx->cipher_state, (uint8_t*)size, 4);
 
-  *size = letoh32(*size);
+  *size = le32toh(*size);
   if(*size > 1024) {
       if(!mac_verify(ctx, recv_param))
 	return FAILED_MAC_VERIFY;
