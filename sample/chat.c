@@ -285,5 +285,7 @@ int main(int argc, char *argv[])
 
   run_communication();
 
+  close(sock);
+
   return EXIT_SUCCESS;
 }
