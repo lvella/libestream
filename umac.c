@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <string.h>
+#include "util.h"
 #include "buffered.h"
 
 #include "umac.h"
@@ -297,14 +298,14 @@ poly128_iteration(const uint128 *key, const uint128 *m, uint128 *y)
 
 static void
 l2_hash_iteration(const l2_key *key, l2_state *state,
-		  uint64_t input, size_t byte_len)
+		  uint64_t input, size_t step_count)
 {
-  static const uint32_t limit = (1u << 24);
-  if(byte_len <= limit)
+  static const uint32_t limit = (1u << 19);
+  if(step_count <= limit)
     state->y.v[1] = poly64_iteration(key->k64, input, state->y.v[1]);
-  else if((byte_len % 2048) && (byte_len % 2048) <= 1024)
+  else if((step_count % 64) && (step_count % 64) <= 32)
     {
-      if(byte_len <= ((1u << 24) + 1024))
+      if(step_count <= (limit + 32))
 	{
 	  /* First chunk after initial 16 MB, must kickstart POLY-128. */
 	  uint128 m = {0, state->y.v[1]};
@@ -362,6 +363,25 @@ l3_hash(const uint64_t *k1, uint32_t k2, const uint128 *m)
   return (uint32_t)(y % p36) ^ k2;
 }
 
+static inline void
+uhash_step_automaton(const uint32_t *buffer, uint64_t step_count,
+    const uint32_t *l1key, const l2_key *l2key, const uint64_t *l3key1, uint32_t l3key2,
+    uhash_iteration_state *partial)
+{
+  if(step_count && step_count % 32 == 0) {
+    l2_hash_iteration(l2key, &partial->l2, partial->l1 + 8192u, step_count);
+    partial->l1 = 0;
+  }
+
+  partial->l1 += nh_iteration(l1key, buffer);
+}
+
+void
+uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, size_t len)
+{
+  // #TODO: To be continued...
+}
+
 static size_t
 copy_input(uint32_t *buffer, size_t *byte_len,
 	   const uint8_t **string, size_t *len)
@@ -417,11 +437,11 @@ copy_input(uint32_t *buffer, size_t *byte_len,
 		    sizeof(key->l1key), BUFFERED_EXTRACT);		\
 									\
     {									\
+      int i;								\
       uint64_t l2_keydata[3*((bits)/32)];				\
       buffered_action(full_state, (uint8_t*)l2_keydata,			\
 		      sizeof(l2_keydata), BUFFERED_EXTRACT);		\
 									\
-      int i;								\
       for(i = 0; i < ((bits)/32); ++i)					\
 	{								\
 	  static const uint64_t keymask = 0x01ffffff01ffffffu;		\
