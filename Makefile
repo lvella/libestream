@@ -1,4 +1,4 @@
-#CFLAGS = -Ofast -flto
+#CFLAGS = -Ofast -flto -DNDEBUG
 CFLAGS = -g
 
 LIB_OBJS := buffered.o hc-128.o protocol.o rabbit.o salsa20.o sosemanuk.o util.o umac.o

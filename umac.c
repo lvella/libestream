@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <string.h>
+#include <endian.h>
 #include "util.h"
 #include "buffered.h"
 
@@ -16,14 +17,17 @@ unpack_bigendian(uint32_t value, uint8_t *out)
   out[3] = value;
 }
 
+/**
+ * @param msg When cast from a byte array, must be in native byte-order...
+ */
 static uint64_t
 nh_iteration(const uint32_t* key, const uint32_t* msg)
 {
   uint64_t y = 0;
   int j;
   for(j = 0; j < 4; ++j)
-    y += (uint64_t)(msg[j] + key[j])
-      * (uint64_t)(msg[4 + j] + key[4 + j]);
+    y += (uint64_t)(htole32(msg[j]) + key[j])
+      * (uint64_t)(htole32(msg[4 + j]) + key[4 + j]);
 
   return y;
 }
@@ -364,7 +368,7 @@ l3_hash(const uint64_t *k1, uint32_t k2, const uint128 *m)
 }
 
 static inline void
-uhash_step_automaton(const uint32_t *buffer, uint64_t step_count,
+uhash_step(const uint32_t *buffer, uint64_t step_count,
     const uint32_t *l1key, const l2_key *l2key, const uint64_t *l3key1, uint32_t l3key2,
     uhash_iteration_state *partial)
 {
@@ -376,10 +380,36 @@ uhash_step_automaton(const uint32_t *buffer, uint64_t step_count,
   partial->l1 += nh_iteration(l1key, buffer);
 }
 
+static inline void
+uhast_step_iterations(const uhash_key *key, uhash_state *state, const uint32_t *buffer)
+{
+  uint64_t setep_count = state->common.byte_count / 32;
+  int i;
+  for(i = 0; i < state->common.iters; ++i) {
+    uhash_step(buffer, setep_count,
+	// TODO: to be continued...
+        const uint32_t *l1key, const l2_key *l2key, const uint64_t *l3key1, uint32_t l3key2,
+        uhash_iteration_state *partial)
+  }
+}
+
 void
 uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, size_t len)
 {
-  // #TODO: To be continued...
+  /* If buffer partially filled, try to complete it. */
+  {
+    size_t filled = state->common.byte_count % 32;
+    if(filled) {
+      size_t to_copy = min(32 - filled, len);
+      memcpy(state->common.buffer, input, to_copy);
+      len -= to_copy;
+
+      if(to_copy + filled == 32) {
+	uhast_step_iterations(key, state, state->common.buffer);
+      }
+    }
+  }
+  // TODO: to be continued...
 }
 
 static size_t
