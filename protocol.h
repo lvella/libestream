@@ -4,7 +4,7 @@
 #include "umac.h"
 
 typedef void (*uhash_init_func)(void *state);
-typedef void (*uhash_update_func)(const void *key,void *state, const uint8_t *string, size_t len);
+typedef void (*uhash_update_func)(const void *key, void *state, const uint8_t *string, size_t len);
 typedef void (*uhash_finish_func)(const void *key, void *state, uint8_t *out);
 
 typedef void (*io_callback_func)(void *parameter, uint8_t *buffer, uint16_t len);

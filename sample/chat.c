@@ -142,7 +142,7 @@ static void signer_setup(full_context *ctx, io_callback_func func)
   ctx->signer.io_callback = func;
   ctx->signer.uhash_byte_size = 8;
   ctx->signer.uhash_init = (uhash_init_func)uhash_64_init;
-  ctx->signer.uhash_update = (uhash_update_func) uhash_64_update;
+  ctx->signer.uhash_update = (uhash_update_func)uhash_64_update;
   ctx->signer.uhash_finish = (uhash_finish_func)uhash_64_finish;
   ctx->signer.uhash_key = &ctx->uhash_key;
   ctx->signer.uhash_state = &ctx->uhash_state;
