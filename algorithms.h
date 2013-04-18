@@ -12,8 +12,8 @@ typedef enum
 
 typedef enum
 {
-  UHASH_32 = 1,
-  UHASH_64 = 2,
-  UHASH_96 = 3,
-  UHASH_128 = 4
+  UHASH_32,
+  UHASH_64,
+  UHASH_96,
+  UHASH_128
 } uhash_type;

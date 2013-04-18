@@ -356,6 +356,90 @@ uhast_step_iterations(const uhash_key *key, uhash_state *state, const uint32_t *
   ++state->common.step_count;
 }
 
+#define UHASH_SPECIFICS_DEF(bits)					\
+  static const uhash_key_attributes uhash_##bits##_attributes = {	\
+    .l2key_offset = offsetof(uhash_##bits##_key, l2key),		\
+    .l3key1_offset = offsetof(uhash_##bits##_key, l3key1),		\
+    .l3key2_offset = offsetof(uhash_##bits##_key, l3key2),		\
+    .iters = ((bits)/32)						\
+  };
+
+UHASH_SPECIFICS_DEF(32)
+UHASH_SPECIFICS_DEF(64)
+UHASH_SPECIFICS_DEF(96)
+UHASH_SPECIFICS_DEF(128)
+
+#undef UHASH_SPECIFICS_DEF
+
+  static const uhash_key_attributes *uhash_attributes_array[] = {
+      &uhash_32_attributes,
+      &uhash_64_attributes,
+      &uhash_96_attributes,
+      &uhash_128_attributes
+  };
+
+void
+uhash_key_setup(uhash_type type, uhash_key *key, buffered_state *full_state)
+{
+  int iters = (size_t)type + 1;
+  uint8_t *key_base = (uint8_t *)key;
+  const uhash_key_attributes *attribs;
+
+  key->attribs = attribs = uhash_attributes_array[iters];
+
+  /* Extract L1 key. */
+  buffered_action(full_state, key_base + sizeof(uhash_key), 1024 + (iters - 1) * 16, BUFFERED_EXTRACT);
+
+  /* Extract and process L2 key. */
+  {
+    int i;
+
+    /** Room for biggest possible L2 key. */
+    uint64_t l2_keydata[12];
+
+    buffered_action(full_state, (uint8_t*)l2_keydata, iters * 24, BUFFERED_EXTRACT);
+
+    for(i = 0; i < iters; ++i)
+    {
+      static const uint64_t keymask = 0x01ffffff01ffffffu;
+      l2_key *l2key = (l2_key *)(key_base + attribs->l2key_offset) + i;
+
+      l2key->k64 = l2_keydata[i*3] & keymask;
+      l2key->k128.v[1] = l2_keydata[i*3 + 1] & keymask;
+      l2key->k128.v[0] = l2_keydata[i*3 + 2] & keymask;
+    }
+  }
+
+  /* Extract and process L3 keys. */
+  {
+    int i;
+    uint64_t *l3key1 = (uint64_t *)(key_base + attribs->l3key1_offset);
+
+    buffered_action(full_state, (uint8_t*)l3key1, iters * 64, BUFFERED_EXTRACT);
+    for(i = 0; i < iters * 8; ++i)
+      l3key1[i] %= p36;
+
+    buffered_action(full_state, key_base + attribs->l3key2_offset, iters * 4, BUFFERED_EXTRACT);
+  }
+}
+
+void
+uhash_init(uhash_type type, uhash_state *state)
+{
+  int i;
+  int iters;
+
+  state->common.iters = iters = (size_t)type + 1;
+  state->common.buffer_len = 0;
+  state->common.step_count = 0;
+
+  for(i = 0; i < iters; ++i) {
+    state->partial[i].l1 = 0;
+    state->partial[i].l2.y.v[0] = 0;
+    state->partial[i].l2.y.v[1] = 1;
+  }
+}
+
 void
 uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, size_t len)
 {
@@ -462,76 +546,3 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output)
   }
 }
 
-#define UHASH_BITS_IMPL(bits)						\
-  void									\
-  uhash_##bits##_key_setup(buffered_state *full_state,			\
-			   uhash_##bits##_key *key)			\
-  {									\
-    buffered_action(full_state, (uint8_t*)key->l1key,			\
-		    sizeof(key->l1key), BUFFERED_EXTRACT);		\
-									\
-    {									\
-      int i;								\
-      uint64_t l2_keydata[3*((bits)/32)];				\
-      buffered_action(full_state, (uint8_t*)l2_keydata,			\
-		      sizeof(l2_keydata), BUFFERED_EXTRACT);		\
-									\
-      for(i = 0; i < ((bits)/32); ++i)					\
-	{								\
-	  static const uint64_t keymask = 0x01ffffff01ffffffu;		\
-	  key->l2key[i].k64 = l2_keydata[i*3] & keymask;		\
-	  key->l2key[i].k128.v[0] = l2_keydata[i*3 + 1] & keymask;	\
-	  key->l2key[i].k128.v[1] = l2_keydata[i*3 + 2] & keymask;	\
-	}								\
-    }									\
-									\
-    buffered_action(full_state, (uint8_t*)key->l3key1,			\
-		    sizeof(key->l3key1), BUFFERED_EXTRACT);		\
-    int i;								\
-    for(i = 0; i < (bits)/4; ++i)					\
-      key->l3key1[i] %= p36;						\
-									\
-    buffered_action(full_state, (uint8_t*)key->l3key2,			\
-		    sizeof(key->l3key2), BUFFERED_EXTRACT);		\
-  }									\
-									\
-  void									\
-  uhash_##bits##_init(uhash_##bits##_state *state)			\
-  {									\
-    state->byte_len = 0;						\
-    int i;								\
-    for(i = 0; i < ((bits)/32); ++i)					\
-      {									\
-	state->l2_partial[i].y.v[0] = 0;				\
-	state->l2_partial[i].y.v[1] = 1;				\
-      }									\
-  }
-
-UHASH_BITS_IMPL(32)
-UHASH_BITS_IMPL(64)
-UHASH_BITS_IMPL(96)
-UHASH_BITS_IMPL(128)
-
-#undef UHASH_BITS_IMPL
-/*
-#include <stdio.h>
-#include <stdio_ext.h>
-
-int main()
-{
-  while(1)
-    {
-      uint128 e, f;
-      if(4 == scanf("%lx %lx %lx %lx", &e.v[0], &e.v[1], &f.v[0], &f.v[1])) {
-	uint128 res;
-	mul_mod_p128(&e, &f, &res);
-	printf("0x%016lx%016lx\n", res.v[0], res.v[1]);
-	fflush(stdout);
-	//mul64(a, b, &c);
-	//printf("0x%lx%lxL\n", c.v[0], c.v[1]);
-      } else {
-	__fpurge(stdin);
-      }
-    }
-}
-*/
