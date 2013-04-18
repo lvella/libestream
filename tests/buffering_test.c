@@ -1,3 +1,6 @@
+/* Author: Lucas Clemente Vella
+ * Source code placed into public domain. */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>

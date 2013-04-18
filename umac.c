@@ -1,3 +1,6 @@
+/* Author: Lucas Clemente Vella
+ * Source code placed into public domain. */
+
 #include <stddef.h>
 #include <string.h>
 #include "buffered.h"

@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# Author: Lucas Clemente Vella
+# Source code placed into public domain.
 
 from Crypto.Cipher import AES
 import struct
