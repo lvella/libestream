@@ -65,19 +65,11 @@ typedef struct {
   uhash_iteration_state partial[FLEX_ARRAY_MEMBER];
 } uhash_state;
 
-/** UHASH variations. */
-typedef enum {
-  UHASH_32 = 1,
-  UHASH_64 = 2,
-  UHASH_96 = 3,
-  UHASH_128 = 4
-} uhash_size;
-
 /* Public interface: */
 
-void uhash_key_setup(uhash_size type, uhash_key *key, buffered_state *full_state);
+void uhash_key_setup(uhash_type type, uhash_key *key, buffered_state *full_state);
 
-void uhash_init(const uhash_key *key, uhash_state *state);
+void uhash_init(uhash_type type, uhash_state *state);
 
 void uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, size_t len);
 
