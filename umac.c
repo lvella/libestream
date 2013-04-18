@@ -32,31 +32,18 @@ nh_iteration(const uint32_t* key, const uint32_t* msg)
   return y;
 }
 
+/* TODO: Remove: */
 static uint64_t
-l1_hash_full_iteration(const uint32_t* key,
-		       const uint32_t* msg)
+nh_iteration_padded(const uint32_t* key, const uint32_t* msg, size_t byte_len)
 {
   int i;
-  uint64_t y = 0;
-  for(i = 0; i < 256; i += 8)
-    y += nh_iteration(key + i, msg + i);
-
-  return y + 8192u;
-}
-
-static uint64_t
-l1_hash_partial_iteration(const uint32_t* key,
-			  const uint32_t* msg, size_t byte_len)
-{
-  int i;
-  int word_len = (byte_len / 4) + (byte_len % 4 ? 1 : 0);
+  int word_len = 1 + ((byte_len - 1) / 4);
   int remainder = word_len % 8;
-  int full_chunks = word_len - remainder;
 
   uint64_t y = 0;
 
-  for(i = 0; i < full_chunks; i += 8)
-    y += nh_iteration(key + i, msg + i);
+  assert(byte_len > 0);
+  assert(byte_len < 32);
 
   if(remainder)
     {
@@ -369,7 +356,7 @@ l3_hash(const uint64_t *k1, uint32_t k2, const uint128 *m)
 
 static inline void
 uhash_step(const uint32_t *buffer, uint64_t step_count,
-    const uint32_t *l1key, const l2_key *l2key, const uint64_t *l3key1, uint32_t l3key2,
+    const uint32_t *l1key, const l2_key *l2key,
     uhash_iteration_state *partial)
 {
   if(step_count && step_count % 32 == 0) {
@@ -383,79 +370,66 @@ uhash_step(const uint32_t *buffer, uint64_t step_count,
 static inline void
 uhast_step_iterations(const uhash_key *key, uhash_state *state, const uint32_t *buffer)
 {
-  uint64_t setep_count = state->common.byte_count / 32;
+  const uint8_t *key_base = (const uint8_t *)key;
   int i;
   for(i = 0; i < state->common.iters; ++i) {
-    uhash_step(buffer, setep_count,
-	// TODO: to be continued...
-        const uint32_t *l1key, const l2_key *l2key, const uint64_t *l3key1, uint32_t l3key2,
-        uhash_iteration_state *partial)
+    uhash_step(buffer, state->common.step_count++,
+	(const uint32_t *)(key_base + sizeof(uhash_key)),
+	(const l2_key *)(key_base + key->attribs->l2key_offset),
+        &state->partial[i]);
   }
 }
 
 void
 uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, size_t len)
 {
-  /* If buffer partially filled, try to complete it. */
-  {
-    size_t filled = state->common.byte_count % 32;
-    if(filled) {
-      size_t to_copy = min(32 - filled, len);
-      memcpy(state->common.buffer, input, to_copy);
-      len -= to_copy;
+  size_t processed = 0;
 
+  /* If buffer is partially filled, try to complete it. */
+  {
+    if(state->common.buffer_len) {
+      size_t to_copy;
+      assert(state->common.buffer_len < 32);
+      to_copy = min(32 - filled, len);
+
+      memcpy(state->common.buffer, input, to_copy);
+      processed += to_copy;
+
+      /* If full, process it. */
       if(to_copy + filled == 32) {
 	uhast_step_iterations(key, state, state->common.buffer);
       }
+      state->common.byte_count += to_copy;
     }
   }
-  // TODO: to be continued...
+  
+  /* For the rest of the input, process in 32 bytes chunks. */
+  if(UNALIGNED_ACCESS_ALLOWED || (unsigned)(input + processed) & 3u == 0) {
+    /* If the machine supports unaligned memmory access, or the memmory happens to be aligned,
+     * use the input pointer directly. */
+    for(; processed + 32 <= len; processed += 32)
+      uhash_step_iterations(key, state, (const uint32_t *)(input + processed));
+  } else {
+    /* Memory must be aligned before casting to 32bits, so copy it to the aligned buffer
+     * before using. */
+    for(; processed + 32 <= len; processed += 32) {
+      memcpy(state->common.buffer, input + processed, 32);
+      uhash_step_iterations(key, state, state->common.buffer);
+    }
+  }
+
+  /* Finally, copy the leftover into buffer for future processing. */
+  state->common.buffer_len = len - processed;
+  memcpy(state->common.buffer, input + processed, state->common.buffer_len);
 }
 
-static size_t
-copy_input(uint32_t *buffer, size_t *byte_len,
-	   const uint8_t **string, size_t *len)
+void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output)
 {
-  if(!*len)
-    return 0;
-
-  size_t read;
-  uint16_t bufsize = *byte_len % 1024u;
-
-#ifdef LITTLE_ENDIAN
-  uint16_t left = 1024 - bufsize;
-  read = (*len > left) ? left : *len;
-  *(buffer + (bufsize + read - 1) / 4) = 0;
-  memcpy(((uint8_t*)buffer) + bufsize, *string, read);
-
-#else
-  uint16_t rem = bufsize % 4u;
-  uint16_t idx = bufsize / 4u;
-  uint32_t val = rem ? buffer[idx] : 0;
-
-  read = 0;
-  for(; idx < 256; ++idx)
-    {
-      for(; rem < 4; ++rem)
-	{
-	  val |= (uint32_t)((*string)[read++]) << (rem * 8);
-	  if(read >= *len)
-	    {
-	      buffer[idx] = val;
-	      goto end_loop;
-	    } 
-	}
-      buffer[idx] = val;
-      rem = val = 0;
-    }
- end_loop:
-#endif
-
-  *byte_len += read;
-  *len -= read;
-  *string += read;
-
-  return read;
+  if(state->common.buffer_len) {
+    /* TODO ...
+    memset(); */
+  }
+  /* TODO... */
 }
 
 #define UHASH_BITS_IMPL(bits)						\

@@ -35,7 +35,7 @@ typedef struct
 
 typedef struct
 {
-  const uhash_key_attributes *cipher;
+  const uhash_key_attributes *attribs;
 } uhash_key;
 
 /* State stuff */
@@ -53,9 +53,11 @@ typedef struct {
 
 typedef struct {
   uint8_t iters;
+  uint8_t buffer_len;
   /** Data is copied to buffer in native byte order. */
   uint32_t buffer[8];
-  uint64_t byte_count;
+  /** How many 32 bytes steps performed so far. */
+  uint64_t step_count;
 } uhash_state_common;
 
 typedef struct {
@@ -84,7 +86,7 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output);
 #define UHASH_BITS(bits)						\
   typedef struct							\
   {									\
-    uhash_key header;					\
+    uhash_key header;							\
     uint32_t l1key[256 + ((bits)/32-1) * 4];				\
     l2_key l2key[(bits)/32];						\
     uint64_t l3key1[(bits)/4];						\
