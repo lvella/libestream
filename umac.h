@@ -87,7 +87,7 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output);
   typedef struct							\
   {									\
     uhash_key header;							\
-    uint32_t l1key[256 + ((bits)/32-1) * 4];				\
+    uint32_t l1key[256 + (((bits)-1)/32) * 4];				\
     l2_key l2key[(bits)/32];						\
     uint64_t l3key1[(bits)/4];						\
     uint32_t l3key2[(bits)/32];						\
@@ -102,13 +102,7 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output);
   void uhash_##bits##_key_setup(buffered_state *full_state,		\
 				uhash_##bits##_key *key);		\
   									\
-  void uhash_##bits##_init(uhash_##bits##_state *state);		\
-  void uhash_##bits##_update(const uhash_##bits##_key *key,		\
-			     uhash_##bits##_state *state,		\
-			     const uint8_t *string, size_t len);	\
-  void uhash_##bits##_finish(const uhash_##bits##_key *key,		\
-			     uhash_##bits##_state *state,		\
-			     uint8_t *out);
+  void uhash_##bits##_init(uhash_##bits##_state *state);
 
 UHASH_BITS(32)
 UHASH_BITS(64)

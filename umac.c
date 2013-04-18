@@ -32,32 +32,6 @@ nh_iteration(const uint32_t* key, const uint32_t* msg)
   return y;
 }
 
-/* TODO: Remove: */
-static uint64_t
-nh_iteration_padded(const uint32_t* key, const uint32_t* msg, size_t byte_len)
-{
-  int i;
-  int word_len = 1 + ((byte_len - 1) / 4);
-  int remainder = word_len % 8;
-
-  uint64_t y = 0;
-
-  assert(byte_len > 0);
-  assert(byte_len < 32);
-
-  if(remainder)
-    {
-      uint32_t padded_msg[8] = {0};
-      int j;
-      for(j = 0; j < remainder; ++j)
-	padded_msg[j] = msg[i+j];
-
-      y += nh_iteration(key + i, padded_msg);
-    }
-
-  return y + (byte_len * 8u);
-}
-
 static void
 mul64(uint64_t a, uint64_t b, uint128 *out)
 {
@@ -287,16 +261,17 @@ poly128_iteration(const uint128 *key, const uint128 *m, uint128 *y)
     sum_mod_p128(m, y, y);
 }
 
+static const uint32_t l2_limit = (1u << 19);
+
 static void
 l2_hash_iteration(const l2_key *key, l2_state *state,
 		  uint64_t input, size_t step_count)
 {
-  static const uint32_t limit = (1u << 19);
-  if(step_count <= limit)
+  if(step_count <= l2_limit)
     state->y.v[1] = poly64_iteration(key->k64, input, state->y.v[1]);
   else if((step_count % 64) && (step_count % 64) <= 32)
     {
-      if(step_count <= (limit + 32))
+      if(step_count <= (l2_limit + 32))
 	{
 	  /* First chunk after initial 16 MB, must kickstart POLY-128. */
 	  uint128 m = {0, state->y.v[1]};
@@ -314,11 +289,11 @@ l2_hash_iteration(const l2_key *key, l2_state *state,
 }
 
 static void
-l2_hash_finish_big(const l2_key *key, l2_state *state, size_t byte_len)
+l2_hash_finish_big(const l2_key *key, l2_state *state, size_t step_count)
 {
   uint128 m;
 
-  if((byte_len % 2048) && (byte_len % 2048 <= 1024))
+  if((step_count % 64) && (step_count % 64 <= 32))
     {
       m.v[0] = state->tmp;
       m.v[1] = 0x8000000000000000u;
@@ -373,11 +348,12 @@ uhast_step_iterations(const uhash_key *key, uhash_state *state, const uint32_t *
   const uint8_t *key_base = (const uint8_t *)key;
   int i;
   for(i = 0; i < state->common.iters; ++i) {
-    uhash_step(buffer, state->common.step_count++,
-	(const uint32_t *)(key_base + sizeof(uhash_key)),
-	(const l2_key *)(key_base + key->attribs->l2key_offset),
+    uhash_step(buffer, state->common.step_count,
+	(const uint32_t *)(key_base + sizeof(uhash_key) + (i * 16)),
+	(const l2_key *)(key_base + key->attribs->l2key_offset + (i * 24)),
         &state->partial[i]);
   }
+  ++state->common.step_count;
 }
 
 void
@@ -386,26 +362,25 @@ uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, siz
   size_t processed = 0;
 
   /* If buffer is partially filled, try to complete it. */
-  {
-    if(state->common.buffer_len) {
-      size_t to_copy;
-      assert(state->common.buffer_len < 32);
-      to_copy = min(32 - filled, len);
+  if(state->common.buffer_len) {
+    size_t to_copy;
+    assert(state->common.buffer_len < 32);
+    to_copy = min(32 - state->common.buffer_len, len);
 
-      memcpy(state->common.buffer, input, to_copy);
-      processed += to_copy;
+    memcpy(state->common.buffer, input, to_copy);
+    state->common.buffer_len += to_copy;
+    processed += to_copy;
 
-      /* If full, process it. */
-      if(to_copy + filled == 32) {
-	uhast_step_iterations(key, state, state->common.buffer);
-      }
-      state->common.byte_count += to_copy;
+    /* If full, process it. */
+    if(state->common.buffer_len == 32) {
+      uhast_step_iterations(key, state, state->common.buffer);
+      state->common.buffer_len = 0;
     }
   }
-  
+
   /* For the rest of the input, process in 32 bytes chunks. */
-  if(UNALIGNED_ACCESS_ALLOWED || (unsigned)(input + processed) & 3u == 0) {
-    /* If the machine supports unaligned memmory access, or the memmory happens to be aligned,
+  if(UNALIGNED_ACCESS_ALLOWED || ((unsigned)(input + processed) & 3u) == 0) {
+    /* If the machine supports unaligned memory access, or the memory happens to be aligned,
      * use the input pointer directly. */
     for(; processed + 32 <= len; processed += 32)
       uhash_step_iterations(key, state, (const uint32_t *)(input + processed));
@@ -425,11 +400,64 @@ uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, siz
 
 void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output)
 {
-  if(state->common.buffer_len) {
-    /* TODO ...
-    memset(); */
+  /* TODO: move all "for iters" to outer loop. It doesn't pay to have them inner. */
+  const uint8_t *key_base = (const uint8_t *)key;
+  uint64_t to_add_l1;
+  int i;
+
+  /* If there is a full L1 completed, and more than 1024 bytes, then L2 hash it. */
+  if((state->common.step_count > 32 && state->common.step_count % 32 == 0)
+     || (state->common.step_count == 32 && state->common.buffer_len)) {
+    for(i = 0; i < state->common.iters; ++i) {
+      uhash_iteration_state *partial = &state->partial[i];
+      l2_hash_iteration((const l2_key *)(key_base + key->attribs->l2key_offset + (i * 24)),
+	  &partial->l2, partial->l1 + 8192u, state->common.step_count);
+      partial->l1 = 0;
+    }
   }
-  /* TODO... */
+
+  to_add_l1 = ((state->common.step_count % 32) * 32 + state->common.buffer_len) * 8;
+
+  /* If there is something in the buffer, or input was empty,
+   * pad-fill with zeroes, and then process... */
+  if(state->common.buffer_len || !state->common.step_count) {
+    memset(&state->common.buffer[state->common.buffer_len],
+	0, 32 - state->common.buffer_len);
+    for(i = 0; i < state->common.iters; ++i)
+      state->partial[i].l1 += nh_iteration(key_base + sizeof(uhash_key) + (i * 16), state->common.buffer);
+    ++state->common.step_count;
+  }
+
+  /* Find the input for L3 hash, either L1 output, if string is small, or one
+   * possible last iteration of L2. */
+  if(state->common.step_count <= 32) {
+    for(i = 0; i < state->common.iters; ++i)
+      state->partial[i].l2.y.v[1] = state->partial[i].l1 + to_add_l1;
+  } else {
+    if(state->common.buffer_len || state->common.step_count % 32 != 0) {
+      for(i = 0; i < state->common.iters; ++i) {
+	uhash_iteration_state *partial = &state->partial[i];
+	l2_hash_iteration((const l2_key *)(key_base + key->attribs->l2key_offset + (i * 24)),
+	    &partial->l2, partial->l1 + to_add_l1, state->common.step_count);
+      }
+    }
+
+    if(state->common.step_count > l2_limit) {
+      for(i = 0; i < state->common.iters; ++i) {
+	l2_hash_finish_big((const l2_key *)(key_base + key->attribs->l2key_offset + (i * 24)),
+	    &state->partial[i]->l2, state->common.step_count);
+      }
+    }
+  }
+
+  /* Finally, run L3 hash and calculates output. */
+  for(i = 0; i < state->common.iters; ++i) {
+    unpack_bigendian(
+	l3_hash((const uint64_t *)(key_base + key->attribs->l3key1_offset + (i * 64)),
+	    *(const uint32_t *)(key_base + key->attribs->l3key2_offset + (i * 4)),
+	    &state->partial[i].l2.y),
+	&output[i*4]);
+  }
 }
 
 #define UHASH_BITS_IMPL(bits)						\
@@ -474,74 +502,6 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output)
       {									\
 	state->l2_partial[i].y.v[0] = 0;				\
 	state->l2_partial[i].y.v[1] = 1;				\
-      }									\
-  }									\
-									\
-  void									\
-  uhash_##bits##_update(const uhash_##bits##_key *key,			\
-			uhash_##bits##_state *state,			\
-			const uint8_t *string, size_t len)		\
-  {									\
-    /* TODO: Avoid copying to the buffer if possible. */		\
-									\
-    /* If the buffer is not full. */					\
-    if(state->byte_len % 1024 || !state->byte_len)			\
-      /* Fill it. */							\
-      copy_input(state->buffer, &state->byte_len, &string, &len);	\
-									\
-    /* While still have more to fill the buffer... */			\
-    while(len > 0)							\
-      {									\
-	int i;								\
-	for(i = 0; i < ((bits)/32); ++i)				\
-	  {								\
-	    uint64_t l1 =						\
-	      l1_hash_full_iteration(&key->l1key[i*4], state->buffer);	\
-									\
-	    l2_hash_iteration(&key->l2key[i], &state->l2_partial[i],	\
-			      l1, state->byte_len);			\
-	  }								\
-									\
-	/* Will always have something left unprocessed in the buffer... */ \
-	copy_input(state->buffer, &state->byte_len, &string, &len);	\
-      }									\
-  }									\
-									\
-  void									\
-  uhash_##bits##_finish(const uhash_##bits##_key *key,			\
-			uhash_##bits##_state *state, uint8_t *out)	\
-  {									\
-    int i;								\
-    for(i = 0; i < ((bits)/32); ++i)					\
-      {									\
-	uint64_t l1;							\
-    									\
-	if(state->byte_len) {						\
-	  l1 = (!(state->byte_len % 1024) && state->byte_len) ?		\
-	    l1_hash_full_iteration(&key->l1key[i*4], state->buffer) :	\
-	    l1_hash_partial_iteration(&key->l1key[i*4], state->buffer,	\
-				      state->byte_len % 1024);		\
-	} else {							\
-	  /* In case of empty string to hash, run one NH iteration   */	\
-	  /* on a zeroed message.                                    */	\
-	  uint32_t msg[8] = {0};					\
-	  l1 = nh_iteration(&key->l1key[i*4], msg);			\
-	}								\
-									\
-	if(state->byte_len > 1024) {					\
-	  l2_hash_iteration(&key->l2key[i], &state->l2_partial[i],	\
-			    l1, state->byte_len);			\
-									\
-	  if(state->byte_len > (1u << 24))				\
-	    l2_hash_finish_big(&key->l2key[i], &state->l2_partial[i],	\
-			       state->byte_len);			\
-	}								\
-	else								\
-	  state->l2_partial[i].y.v[1] = l1;				\
-									\
-	unpack_bigendian(l3_hash(&key->l3key1[i*8], key->l3key2[i],	\
-				 &state->l2_partial[i].y),		\
-			 &out[i*4]);					\
       }									\
   }
 
