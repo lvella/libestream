@@ -1,8 +1,6 @@
 - Better testing on buffered_skip().
 - Increase chunk size of hc-128 to 64 bytes, in order to dilute overhead.
 - Test of sum_mod_p128 with y == out.
-- On uhash_<bits>_update, aviod copying string to buffer if possible.
 - Find some way to test UMAC better. Reference implementation seems broken
 when (m >= maxwordrange) on POLY algorithm (rarelly occurs, I don't know of any case, neither how to craft it). Test vectors doesn't cover all branches.
-- UHASH buffer can be as small as 32 bytes, instead of current 1024. Make it so.
-- Change UHASH interface to choose dynamically between variants, instead of the ugly macros used until now to generate specific functions.
+- Test UMAC with all input sizes, from 0 to 3000, generating the input randomly.
