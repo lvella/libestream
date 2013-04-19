@@ -84,6 +84,7 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output);
     uint64_t l3key1[(bits)/4];						\
     uint32_t l3key2[(bits)/32];						\
   } uhash_##bits##_key;							\
+  const uhash_key_attributes uhash_##bits##_attributes;			\
 									\
   typedef struct							\
   {									\
@@ -97,3 +98,5 @@ UHASH_BITS(96)
 UHASH_BITS(128)
 
 #undef UHASH_BITS
+
+const uhash_key_attributes *const uhash_attributes_array[4];

@@ -19,8 +19,12 @@ void print_hex(uint8_t *str, size_t len, uint32_t *pad)
 
 void run_test(char* name, char *char_msg, size_t len)
 {
-  printf("Message: %s\n", name);
-
+  static const uhash_key * const keys[] = {
+      (const uhash_key *)&key_32,
+      (const uhash_key *)&key_64,
+      (const uhash_key *)&key_96,
+      (const uhash_key *)&key_128
+  };
   uint8_t *msg = (uint8_t*)char_msg;
   uint8_t out[16];
   
@@ -31,6 +35,8 @@ void run_test(char* name, char *char_msg, size_t len)
     uhash_128_state s128;
   } state;
 
+  uhash_state *state_ptr = (uhash_state *)&state;
+
   int i;
 
   printf("Message: %s\n", name);
@@ -38,9 +44,9 @@ void run_test(char* name, char *char_msg, size_t len)
   for(i = 0; i < 4; ++i)
   {
     printf("%d", (i+1) * 32);
-    uhash_init((uhash_type)i, &state);
-    uhash_update(&keys[i], &state, msg, len);
-    uhash_finish(&keys[i], &state, out);
+    uhash_init((uhash_type)i, state_ptr);
+    uhash_update(keys[i], state_ptr, msg, len);
+    uhash_finish(keys[i], state_ptr, out);
     print_hex(out, 4, pads[i]);
   }
 }

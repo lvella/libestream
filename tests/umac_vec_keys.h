@@ -1,6 +1,7 @@
 #include "umac.h"
 
 uhash_32_key key_32 = {
+&uhash_32_attributes,
 {
 0xACD79B4Fu,
 0x6EDA0D0Eu,
@@ -277,6 +278,7 @@ uhash_32_key key_32 = {
 }};
 
 uhash_64_key key_64 = {
+&uhash_64_attributes,
 {
 0xACD79B4Fu,
 0x6EDA0D0Eu,
@@ -567,6 +569,7 @@ uhash_64_key key_64 = {
 }};
 
 uhash_96_key key_96 = {
+&uhash_96_attributes,
 {
 0xACD79B4Fu,
 0x6EDA0D0Eu,
@@ -871,6 +874,7 @@ uhash_96_key key_96 = {
 }};
 
 uhash_128_key key_128 = {
+&uhash_128_attributes,
 {
 0xACD79B4Fu,
 0x6EDA0D0Eu,
@@ -1188,7 +1192,9 @@ uhash_128_key key_128 = {
 0x212EB6CBu,
 }};
 
-uint32_t pad32 = 0xAE135F82u;
+uint32_t pad32[1] = {
+0xAE135F82u,
+};
 
 uint32_t pad64[2] = {
 0xD13745D4u,
@@ -1208,3 +1214,4 @@ uint32_t pad128[4] = {
 0xB7760AF8u,
 };
 
+uint32_t *pads[4] = {pad32, pad64, pad96, pad128};

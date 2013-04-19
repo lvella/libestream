@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <string.h>
+#include <assert.h>
 #include <endian.h>
 #include "util.h"
 #include "buffered.h"
@@ -343,7 +344,7 @@ uhash_step(const uint32_t *buffer, uint64_t step_count,
 }
 
 static inline void
-uhast_step_iterations(const uhash_key *key, uhash_state *state, const uint32_t *buffer)
+uhash_step_iterations(const uhash_key *key, uhash_state *state, const uint32_t *buffer)
 {
   const uint8_t *key_base = (const uint8_t *)key;
   int i;
@@ -357,7 +358,7 @@ uhast_step_iterations(const uhash_key *key, uhash_state *state, const uint32_t *
 }
 
 #define UHASH_SPECIFICS_DEF(bits)					\
-  static const uhash_key_attributes uhash_##bits##_attributes = {	\
+  const uhash_key_attributes uhash_##bits##_attributes = {	\
     .l2key_offset = offsetof(uhash_##bits##_key, l2key),		\
     .l3key1_offset = offsetof(uhash_##bits##_key, l3key1),		\
     .l3key2_offset = offsetof(uhash_##bits##_key, l3key2),		\
@@ -371,12 +372,12 @@ UHASH_SPECIFICS_DEF(128)
 
 #undef UHASH_SPECIFICS_DEF
 
-  static const uhash_key_attributes *uhash_attributes_array[] = {
-      &uhash_32_attributes,
-      &uhash_64_attributes,
-      &uhash_96_attributes,
-      &uhash_128_attributes
-  };
+const uhash_key_attributes *const uhash_attributes_array[4] = {
+    &uhash_32_attributes,
+    &uhash_64_attributes,
+    &uhash_96_attributes,
+    &uhash_128_attributes
+};
 
 void
 uhash_key_setup(uhash_type type, uhash_key *key, buffered_state *full_state)
@@ -457,7 +458,7 @@ uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, siz
 
     /* If full, process it. */
     if(state->common.buffer_len == 32) {
-      uhast_step_iterations(key, state, state->common.buffer);
+      uhash_step_iterations(key, state, state->common.buffer);
       state->common.buffer_len = 0;
     }
   }
