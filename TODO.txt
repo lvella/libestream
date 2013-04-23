@@ -5,3 +5,4 @@
 when (m >= maxwordrange) on POLY algorithm (rarelly occurs, I don't know of any case, neither how to craft it). Test vectors doesn't cover all branches.
 - Test UMAC with all input sizes, from 0 to 3000, generating the input randomly.
 - Static initalizator to UHASH state.
+- Implement SipHash, an ultra-fast MAC algorithm.
