@@ -386,14 +386,15 @@ const uhash_key_attributes *const uhash_attributes_array[4] = {
 void
 uhash_key_setup(uhash_type type, uhash_key *key, buffered_state *full_state)
 {
-  int iters = (size_t)type + 1;
+  const size_t iter_idx = (size_t)type;
+  const size_t iters = iter_idx + 1;
   uint8_t *key_base = (uint8_t *)key;
   const uhash_key_attributes *attribs;
 
-  key->attribs = attribs = uhash_attributes_array[iters];
+  key->attribs = attribs = uhash_attributes_array[iter_idx];
 
   /* Extract L1 key. */
-  buffered_action(full_state, key_base + sizeof(uhash_key), 1024 + (iters - 1) * 16, BUFFERED_EXTRACT);
+  buffered_action(full_state, key_base + sizeof(uhash_key), 1024 + iter_idx * 16, BUFFERED_EXTRACT);
 
   /* Extract and process L2 key. */
   {

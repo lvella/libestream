@@ -136,16 +136,12 @@ typedef struct {
 
 static void signer_setup(full_context *ctx, io_callback_func func)
 {
-  uhash_64_key_setup((buffered_state *)&ctx->buffered, &ctx->uhash_key);
-
   ctx->signer.cipher_state = (buffered_state *)&ctx->buffered;
   ctx->signer.io_callback = func;
-  ctx->signer.uhash_byte_size = 8;
-  ctx->signer.uhash_init = (uhash_init_func)uhash_64_init;
-  ctx->signer.uhash_update = (uhash_update_func)uhash_64_update;
-  ctx->signer.uhash_finish = (uhash_finish_func)uhash_64_finish;
-  ctx->signer.uhash_key = &ctx->uhash_key;
-  ctx->signer.uhash_state = &ctx->uhash_state;
+  ctx->signer.mac_key = (uhash_key *)&ctx->uhash_key;
+  ctx->signer.mac_state = (uhash_state *)&ctx->uhash_state;
+
+  uhash_key_setup(UHASH_64, ctx->signer.mac_key, ctx->signer.cipher_state);
 }
 
 static void *receiver_loop(full_context *inbound)
@@ -227,7 +223,7 @@ static void run_communication()
   signer_setup(&inbound, (io_callback_func)my_read);
   signer_setup(&outbound, (io_callback_func)my_send);
 
-  /* Wait for message in another thread. */
+  /* Wait for messages in another thread. */
   pthread_create(&receiver_thread, NULL, (void *(*)(void *))receiver_loop, &inbound);
 
   /* Loop reading user input and sending messages. */
