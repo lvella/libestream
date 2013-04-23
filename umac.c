@@ -494,7 +494,11 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output)
   int i;
 
   /* Number of bits input to the last L1 iteration. */
-  to_add_l1 = ((state->common.step_count % 32) * 32 + state->common.buffer_len) * 8;
+  to_add_l1 = substep * 32 + state->common.buffer_len;
+  if(!to_add_l1 && state->common.step_count)
+    to_add_l1 = 8192u;
+  else
+    to_add_l1 *= 8;
 
   /* If there is something in the buffer, or input was empty,
    * pad-fill with zeroes... */
