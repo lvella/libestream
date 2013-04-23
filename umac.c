@@ -335,12 +335,13 @@ uhash_step(const uint32_t *buffer, uint64_t step_count,
     const uint32_t *l1key, const l2_key *l2key,
     uhash_iteration_state *partial)
 {
-  if(step_count && step_count % 32 == 0) {
+  int substep = step_count % 32;
+  if(step_count && substep == 0) {
     l2_hash_iteration(l2key, &partial->l2, partial->l1 + 8192u, step_count);
     partial->l1 = 0;
   }
 
-  partial->l1 += nh_iteration(l1key, buffer);
+  partial->l1 += nh_iteration(l1key + substep * 8, buffer);
 }
 
 static inline void
@@ -358,7 +359,7 @@ uhash_step_iterations(const uhash_key *key, uhash_state *state, const uint32_t *
 }
 
 #define UHASH_SPECIFICS_DEF(bits)					\
-  const uhash_key_attributes uhash_##bits##_attributes = {	\
+  const uhash_key_attributes uhash_##bits##_attributes = {		\
     .l2key_offset = offsetof(uhash_##bits##_key, l2key),		\
     .l3key1_offset = offsetof(uhash_##bits##_key, l3key1),		\
     .l3key2_offset = offsetof(uhash_##bits##_key, l3key2),		\
@@ -489,6 +490,7 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output)
   const uint8_t *key_base = (const uint8_t *)key;
   uint64_t to_add_l1;
   int has_leftover, must_run_l2;
+  int substep = state->common.step_count % 32;
   int i;
 
   /* Number of bits input to the last L1 iteration. */
@@ -502,7 +504,7 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output)
 	0, 32 - state->common.buffer_len);
   }
 
-  must_run_l2 = (state->common.step_count > 32 && state->common.step_count % 32 == 0)
+  must_run_l2 = (state->common.step_count > 32 && substep == 0)
 		    || (state->common.step_count == 32 && state->common.buffer_len);
 
   /* For each algorithm iteration... */
@@ -519,7 +521,7 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output)
 
     /* Process the leftover on buffer. */
     if(has_leftover) {
-      state->partial[i].l1 += nh_iteration((const uint32_t *)(key_base + sizeof(uhash_key) + (i * 16)),
+      partial->l1 += nh_iteration((const uint32_t *)(key_base + sizeof(uhash_key)) + 4 * i + substep * 8,
 	  (const uint32_t *)state->common.buffer);
       ++step_count;
     }
@@ -527,14 +529,14 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output)
     /* Find the input for L3 hash, either L1 output, if string is small, or one
      * possible last iteration of L2. */
     if(step_count <= 32) {
-      state->partial[i].l2.y.v[1] = state->partial[i].l1 + to_add_l1;
+      partial->l2.y.v[1] = partial->l1 + to_add_l1;
     } else {
       if(state->common.buffer_len || step_count % 32 != 0) {
 	l2_hash_iteration(l2key, &partial->l2, partial->l1 + to_add_l1, step_count);
       }
 
       if(step_count > l2_limit) {
-	l2_hash_finish_big(l2key, &state->partial[i].l2, step_count);
+	l2_hash_finish_big(l2key, &partial->l2, step_count);
       }
     }
 

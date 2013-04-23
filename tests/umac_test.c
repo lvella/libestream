@@ -53,13 +53,13 @@ void run_test(char* name, char *char_msg, size_t len)
 
 void std_test()
 {
-  run_test("<empty>", "", 0); /* Fail. */
+  run_test("<empty>", "", 0);
 
-  run_test("'a' * 3", "aaa", 3);
 
   char *buf = malloc(1 << 25);
   memset(buf, 'a', 1 << 25);
 
+  run_test("'a' * 3", buf, 3);
   run_test("'a' * 2^10", buf, 1 << 10);
   run_test("'a' * 2^15", buf, 1 << 15);
   run_test("'a' * 2^20", buf, 1 << 20);
