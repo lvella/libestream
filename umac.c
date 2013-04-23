@@ -452,7 +452,7 @@ uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, siz
     assert(state->common.buffer_len < 32);
     to_copy = min(32 - state->common.buffer_len, len);
 
-    memcpy(state->common.buffer, input, to_copy);
+    memcpy((uint8_t*)state->common.buffer + state->common.buffer_len, input, to_copy);
     state->common.buffer_len += to_copy;
     processed += to_copy;
 
@@ -498,7 +498,7 @@ void uhash_finish(const uhash_key *key, uhash_state *state, uint8_t *output)
    * pad-fill with zeroes... */
   has_leftover = state->common.buffer_len || !state->common.step_count;
   if(has_leftover) {
-    memset(&state->common.buffer[state->common.buffer_len],
+    memset((uint8_t *)state->common.buffer + state->common.buffer_len,
 	0, 32 - state->common.buffer_len);
   }
 
