@@ -1,4 +1,4 @@
-#CFLAGS = -Ofast -flto
+#CFLAGS = -Ofast -flto -DNDEBUG
 CFLAGS = -g
 CC = gcc
 

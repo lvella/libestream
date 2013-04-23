@@ -59,7 +59,8 @@ def keys_write(key, out):
     for bitsize in (32, 64, 96, 128):
         (l1key, l2key, l3key1, l3key2) = keygen(key, bitsize / 8)
 
-        out.write('uhash_{0}_key key_{0} = {{\n{{\n'.format(bitsize))
+        out.write('uhash_{0}_key key_{0} = {{\n&uhash_{0}_attributes,\n{{\n'
+                  .format(bitsize, bitsize/32 - 1))
         for k1 in split_len(l1key, 4):
             out.write('0x{}u,\n'.format(h(k1)))
 
@@ -83,14 +84,15 @@ def keys_write(key, out):
 
 def pads_write(key, nonce, out):
     pad = pdf(key, nonce, 4)
-    out.write('uint32_t pad32 = 0x{}u;\n\n'.format(h(pad)))
 
-    for i in xrange(2, 4+1):
+    for i in xrange(1, 4+1):
         pad = pdf(key, nonce, i*4)
         out.write('uint32_t pad{}[{}] = {{\n'.format(i*32, i))
         for c in split_len(pad, 4):
             out.write('0x{}u,\n'.format(h(c)))
         out.write('};\n\n')
+
+    out.write('uint32_t *pads[4] = {pad32, pad64, pad96, pad128};');
 
 def main():
     outfile = open('{}/../umac_vec_keys.h'.format(script_path), 'w')

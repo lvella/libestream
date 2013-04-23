@@ -6,6 +6,10 @@
 #include <inttypes.h>
 #include <stddef.h>
 
+#ifndef UNALIGNED_ACCESS_ALLOWED
+#define UNALIGNED_ACCESS_ALLOWED 0
+#endif
+
 uint32_t rotl(uint32_t x, unsigned int n);
 
 uint32_t pack_littleendian(const uint8_t *v);
