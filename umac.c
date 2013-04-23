@@ -428,6 +428,12 @@ uhash_key_setup(uhash_type type, uhash_key *key, buffered_state *full_state)
   }
 }
 
+uhash_type
+uhash_get_type_from_key(uhash_key *key)
+{
+  return (uhash_type)(key->attribs->iters - 1);
+}
+
 void
 uhash_init(uhash_type type, uhash_state *state)
 {

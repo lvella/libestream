@@ -72,6 +72,8 @@ typedef struct {
 
 void uhash_key_setup(uhash_type type, uhash_key *key, buffered_state *full_state);
 
+uhash_type uhash_get_type_from_key(uhash_key *key);
+
 void uhash_init(uhash_type type, uhash_state *state);
 
 void uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, size_t len);

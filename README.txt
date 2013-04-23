@@ -1,7 +1,8 @@
 == Notes on Portability ==
 
 The library is written mostly on C89, but uses the header inttypes.h
-from C99, in particular, types uint8_t, uint32_t and uint64_t are used.
+from C99, in particular, types uint8_t, uint32_t and uint64_t are used,
+and the non-standard function le32toh and htole32 on header "endian.h".
 
 Beyond standard C guarantees, the code only makes one (widely true)
 assumption: to be possible to load uint64_t values from 4 bytes aligned

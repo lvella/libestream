@@ -3,10 +3,6 @@
 #include "buffered.h"
 #include "umac.h"
 
-typedef void (*uhash_init_func)(void *state);
-typedef void (*uhash_update_func)(const void *key, void *state, const uint8_t *string, size_t len);
-typedef void (*uhash_finish_func)(const void *key, void *state, uint8_t *out);
-
 typedef void (*io_callback_func)(void *parameter, uint8_t *buffer, uint16_t len);
 
 typedef struct
@@ -16,12 +12,8 @@ typedef struct
   /** Either low-level sending or receiving function. */
   io_callback_func io_callback;
 
-  void *uhash_key;
-  void *uhash_state;
-  uhash_init_func uhash_init;
-  uhash_update_func uhash_update;
-  uhash_finish_func uhash_finish;
-  uint8_t uhash_byte_size;
+  uhash_key *mac_key;
+  uhash_state *mac_state;
 } signer_context;
 
 typedef enum
