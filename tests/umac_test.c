@@ -3,9 +3,15 @@
 #include <arpa/inet.h>
 #include "umac_vec_keys.h"
 
+static const uhash_key * const keys[] = {
+    (const uhash_key *)&key_32,
+    (const uhash_key *)&key_64,
+    (const uhash_key *)&key_96,
+    (const uhash_key *)&key_128
+};
+
 void print_hex(uint8_t *str, size_t len, uint32_t *pad)
 {
-  putchar(':');
   int i, j;
   for(i = 0; i < len / 4; ++i)
     {
@@ -19,12 +25,6 @@ void print_hex(uint8_t *str, size_t len, uint32_t *pad)
 
 void run_test(char* name, char *char_msg, size_t len)
 {
-  static const uhash_key * const keys[] = {
-      (const uhash_key *)&key_32,
-      (const uhash_key *)&key_64,
-      (const uhash_key *)&key_96,
-      (const uhash_key *)&key_128
-  };
   uint8_t *msg = (uint8_t*)char_msg;
   uint8_t out[16];
   
@@ -43,15 +43,15 @@ void run_test(char* name, char *char_msg, size_t len)
 
   for(i = 0; i < 4; ++i)
   {
-    printf("%d", (i+1) * 32);
+    printf("%d:", (i+1) * 32);
     uhash_init((uhash_type)i, state_ptr);
     uhash_update(keys[i], state_ptr, msg, len);
     uhash_finish(keys[i], state_ptr, out);
-    print_hex(out, 4, pads[i]);
+    print_hex(out, (i+1)*4, pads[i]);
   }
 }
 
-int main()
+void std_test()
 {
   run_test("<empty>", "", 0); /* Fail. */
 
@@ -72,4 +72,39 @@ int main()
     memcpy(&buf[i*3], "abc", 3);
 
   run_test("'abc' * 500", buf, 1500);
+}
+
+int main(int argc, char *argv[])
+{
+  if(argc <= 1) {
+    std_test();
+    return 0;
+  } else if(argc != 3) {
+    fprintf(stderr, "Usage:\n  %s <message> <taglen>\nwhere <taglen> is one of 32, 64, 96 or 128\n", argv[0]);
+    return 1;
+  }
+
+  {
+    union {
+      uhash_32_state s32;
+      uhash_64_state s64;
+      uhash_96_state s96;
+      uhash_128_state s128;
+    } state;
+
+    uhash_state *state_ptr = (uhash_state *)&state;
+
+    int i = atoi(argv[2]) / 32;
+    uint8_t out[16];
+
+    if(i < 1 || i > 4 || (atoi(argv[2]) % 32)) {
+      fputs("Invalid taglen, must be one of 32, 64, 96 or 128\n", stderr);
+      return 1;
+    }
+
+    uhash_init((uhash_type)(i - 1), state_ptr);
+    uhash_update(keys[i], state_ptr, argv[1], strlen(argv[1]));
+    uhash_finish(keys[i], state_ptr, out);
+    print_hex(out, i*4, pads[i]);
+  }
 }
