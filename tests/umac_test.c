@@ -94,17 +94,17 @@ int main(int argc, char *argv[])
 
     uhash_state *state_ptr = (uhash_state *)&state;
 
-    int i = atoi(argv[2]) / 32;
+    int i = atoi(argv[2]) / 32 - 1;
     uint8_t out[16];
 
-    if(i < 1 || i > 4 || (atoi(argv[2]) % 32)) {
+    if(i < 0 || i > 3 || (atoi(argv[2]) % 32)) {
       fputs("Invalid taglen, must be one of 32, 64, 96 or 128\n", stderr);
       return 1;
     }
 
-    uhash_init((uhash_type)(i - 1), state_ptr);
+    uhash_init((uhash_type)i, state_ptr);
     uhash_update(keys[i], state_ptr, argv[1], strlen(argv[1]));
     uhash_finish(keys[i], state_ptr, out);
-    print_hex(out, i*4, pads[i]);
+    print_hex(out, (i+1)*4, pads[i]);
   }
 }
