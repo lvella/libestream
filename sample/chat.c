@@ -245,7 +245,6 @@ static void run_communication()
   }
 
   close(sock);
-  pthread_join(receiver_thread, NULL);
 }
 
 int main(int argc, char *argv[])
