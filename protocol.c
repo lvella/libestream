@@ -54,7 +54,7 @@ signed_send(signer_context *ctx, void *send_param, const uint8_t *msg_buff, uint
       buffered_action(ctx->cipher_state, buffer, buff_used, BUFFERED_ENCDEC);
       ctx->io_callback(send_param, buffer, buff_used);
 
-      buff_used = min(len, WORK_BUFFER_SIZE);
+      buff_used = min(len - processed_count, WORK_BUFFER_SIZE);
       memcpy(buffer, msg_buff + processed_count, buff_used);
       uhash_update(ctx->mac_key, ctx->mac_state, buffer, buff_used);
 
