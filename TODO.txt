@@ -1,8 +1,18 @@
 - Better testing on buffered_skip().
-- Increase chunk size of hc-128 to 64 bytes, in order to dilute overhead.
 - Test of sum_mod_p128 with y == out.
 - Find some way to test UMAC better. Reference implementation seems broken
 when (m >= maxwordrange) on POLY algorithm (rarelly occurs, I don't know of any case, neither how to craft it). Test vectors doesn't cover all branches.
 - Test UMAC with all input sizes, from 0 to 3000, generating the input randomly.
-- Static initalizator to UHASH state.
+- Test uhash_update with random sized partial updates.
+- Test sending large messages with simple protocol.
+
+- Makefile build sample chat application.
+- Specialize buffered_skip to Salsa20.
+- Increase chunk size of HC-128, to 32 or 64 bytes, in order to dilute overhead.
+- Create static initalizator to UHASH state.
+- Write tutorial documentation.
+
+- Benchmark key setup, IV setup and encryption separatedly.
+
 - Implement SipHash, an ultra-fast MAC algorithm.
+- Implement HC-256.
