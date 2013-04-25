@@ -25,6 +25,8 @@ uint8_t key[16];
 
 int sock;
 
+#define SENDBUFF_SIZE (4096*1024*100)
+
 static int parse_args(int argc, char *argv[])
 {
   int ip_idx;
@@ -152,6 +154,7 @@ static void *receiver_loop(full_context *inbound)
   SignerReceiveStatus ret = signed_recv(&inbound->signer, &sock, &ptr, &size);
   while(ret == SIGNER_RECV_SUCCESS)
   {
+    fprintf(stderr, "Chunk size received: %d bytes\n", size);
     fwrite(ptr, 1, size, stdout);
     fflush(stdout);
     free(ptr);
@@ -228,11 +231,12 @@ static void run_communication()
 
   /* Loop reading user input and sending messages. */
   {
-    uint8_t buff[4096];
-    ssize_t count = read(STDIN_FILENO, buff, 4096);
+    static uint8_t buff[SENDBUFF_SIZE];
+    ssize_t count = read(STDIN_FILENO, buff, SENDBUFF_SIZE);
     while(count > 0) {
+      fprintf(stderr, "Chunk size sent: %ld bytes\n", count);
       signed_send(&outbound.signer, &sock, buff, count);
-      count = read(STDIN_FILENO, buff, 4096);
+      count = read(STDIN_FILENO, buff, SENDBUFF_SIZE);
     }
     if(count < 0) {
       perror("Error reading input");
