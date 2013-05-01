@@ -1,3 +1,5 @@
+- Rename IV to nonce throughout all project.
+
 - Better testing on buffered_skip().
 - Test of sum_mod_p128 with y == out.
 - Find some way to test UMAC better. Reference implementation seems broken
@@ -9,8 +11,6 @@ when (m >= maxwordrange) on POLY algorithm (rarelly occurs, I don't know of any 
 - Increase chunk size of HC-128, to 32 or 64 bytes, in order to dilute overhead.
 - Create static initalizator to UHASH state.
 - Write tutorial documentation.
-
-- Benchmark key setup, IV setup and encryption separatedly.
 
 - Implement SipHash, an ultra-fast MAC algorithm.
 - Implement HC-256.

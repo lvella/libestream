@@ -1,9 +1,9 @@
-#CFLAGS = -Ofast -flto -DNDEBUG
-CFLAGS = -g
+CFLAGS = -Ofast -flto -DNDEBUG
+#CFLAGS = -g
 CC = gcc
 
 LIB_OBJS := buffered.o hc-128.o protocol.o rabbit.o salsa20.o sosemanuk.o util.o umac.o
-TESTS := algorithms_test buffering_test umac_test
+TESTS := algorithms_test buffering_test umac_test performance_test
 
 .PHONY : all tests clean
 
@@ -19,6 +19,9 @@ chat: libestream.a sample/chat.o
 
 all: libestream.a tests chat
 
+performance_test: libestream.a tests/reference/rc4.o tests/performance_test.o
+	$(CC) $(CFLAGS) tests/performance_test.o tests/reference/rc4.o libestream.a -lrt -o performance_test
+
 %_test: libestream.a tests/%_test.o
 	$(CC) $(CFLAGS) tests/$*_test.o libestream.a -o $*_test
 
@@ -27,4 +30,4 @@ all: libestream.a tests chat
 	$(CC) -MM $(CFLAGS) -I. $*.c > $*.d
 
 clean:
-	-rm -f libestream.a *.o *.d tests/*.o tests/*.d $(TESTS) sample/*.o sample/*.d
+	-rm -f libestream.a *.o *.d tests/*.o tests/*.d tests/reference/*.o tests/reference/*.d $(TESTS) sample/*.o sample/*.d
