@@ -14,7 +14,10 @@ libestream.a: $(LIB_OBJS)
 
 tests: $(TESTS)
 
-all: libestream.a tests
+chat: libestream.a sample/chat.o
+	$(CC) $(CFLAGS) sample/chat.o libestream.a -pthread -o chat
+
+all: libestream.a tests chat
 
 %_test: libestream.a tests/%_test.o
 	$(CC) $(CFLAGS) tests/$*_test.o libestream.a -o $*_test
@@ -24,4 +27,4 @@ all: libestream.a tests
 	$(CC) -MM $(CFLAGS) -I. $*.c > $*.d
 
 clean:
-	-rm -f libestream.a *.o *.d tests/*.o tests/*.d $(TESTS)
+	-rm -f libestream.a *.o *.d tests/*.o tests/*.d $(TESTS) sample/*.o sample/*.d

@@ -5,7 +5,6 @@ when (m >= maxwordrange) on POLY algorithm (rarelly occurs, I don't know of any 
 - Test UMAC with all input sizes, from 0 to 3000, generating the input randomly.
 - Test uhash_update with random sized partial updates.
 
-- Makefile build sample chat application.
 - Specialize buffered_skip to Salsa20.
 - Increase chunk size of HC-128, to 32 or 64 bytes, in order to dilute overhead.
 - Create static initalizator to UHASH state.
