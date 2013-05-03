@@ -38,4 +38,4 @@ performance_test: libestream.a tests/reference/rc4.o tests/performance_test.o
 	$(CC) -MM $(CFLAGS) -I. $*.c > $*.d
 
 clean:
-	-rm -f libestream.a *.o *.d tests/*.o tests/*.d tests/reference/*.o tests/reference/*.d $(TESTS) sample/*.o sample/*.d
+	-rm -f libestream.a *.o *.d tests/*.o tests/*.d tests/reference/*.o tests/reference/*.d $(TESTS) chat sample/*.o sample/*.d
