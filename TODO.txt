@@ -10,7 +10,8 @@ when (m >= maxwordrange) on POLY algorithm (rarelly occurs, I don't know of any 
 - Specialize buffered_skip to Salsa20.
 - Increase chunk size of HC-128, to 32 or 64 bytes, in order to dilute overhead.
 - Create static initalizator to UHASH state.
-- Write tutorial documentation.
+- Write detailed tutorial documentation, with samples for each interface type.
+- Write doxygen docs to all interface functions.
 
 - Implement SipHash, an ultra-fast MAC algorithm.
 - Implement HC-256.
