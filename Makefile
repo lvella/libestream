@@ -1,5 +1,13 @@
+# Comment/uncoment for debug/release build
 CFLAGS = -Ofast -flto -DNDEBUG
 #CFLAGS = -g
+
+# Uncomment if the target system allows for unalligned memory access (like x86, unlike ARM):
+#CFLAGS += -DUNALIGNED_ACCESS_ALLOWED
+
+# Uncomment if you are building for little-endian machines:
+#CFLAGS += -DLITTLE_ENDIAN
+
 CC = gcc
 
 LIB_OBJS := buffered.o hc-128.o protocol.o rabbit.o salsa20.o sosemanuk.o util.o umac.o

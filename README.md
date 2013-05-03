@@ -106,3 +106,8 @@ macro is specified during compilation, optimized code dependant on little
 endian machine will be used; otherwise, generic code that works on any
 endianess will be used. Thus, the code is portable to big-endian machines,
 but probably performs better on little-endian.
+
+Likewise, you may gain a small performance boost by defining the macro
+UNALIGNED_ACCESS_ALLOWED if your target machine does support byte
+granularity when accessing memory, such as x86 *does*, and
+ARM *does not*.

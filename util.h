@@ -6,8 +6,10 @@
 #include <inttypes.h>
 #include <stddef.h>
 
-#ifndef UNALIGNED_ACCESS_ALLOWED
-#define UNALIGNED_ACCESS_ALLOWED 0
+#ifdef UNALIGNED_ACCESS_ALLOWED
+#define UNALIGNED_ACCESS 1
+#else
+#define UNALIGNED_ACCESS 0
 #endif
 
 uint32_t rotl(uint32_t x, unsigned int n);
