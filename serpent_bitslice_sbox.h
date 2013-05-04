@@ -1,5 +1,5 @@
 
-/* Partially optimised Serpent S Box boolean functions derived  */
+/* Partially optimized Serpent S Box boolean functions derived  */
 /* using a recursive descent analyser but without a full search */
 /* of all subtrees. This set of S boxes is the result of work	*/
 /* by Sam Simpson and Brian Gladman using the spare time on a	*/

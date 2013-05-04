@@ -37,9 +37,11 @@ typedef struct {
  * @param state The uninitialized state.
  * @param variant One of SALSA20_8, SALSA20_12 or SALSA20_20 enum values,
  * representing the number of rounds of the hash function, the bigger, the
- * slower and safer. eSTREAM Portifolio specifies SALSA20_12 variant
+ * slower and safer. eSTREAM portfolio specifies SALSA20_12 variant
  * (written as Salsa20/12). As expected, you must use the same variant in
- * order to encrypt/decrypt the message.
+ * order to encrypt/decrypt the message. There is a theoretical attack
+ * published on SALSA20-8; although the attack is not really practical, this
+ * variant should not be used for strong security.
  * @param key 16 or 32 bytes buffer of the 128-bit or 256-bit key. The buffer
  * must be aligned to at least 4 bytes (depending on the platform it may or
  * may not work with unaligned memory).

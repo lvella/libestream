@@ -20,16 +20,16 @@ typedef struct
 
 /** Initialize the Sosemanuk master state with key.
  *
- * The state initialized by this function is used to generate encription
+ * The state initialized by this function is used to generate encryption
  * states based on an Initialization Vector (IV). See function
  * sosemanuk_init_iv().
  *
- * @param s The unintialized state.
+ * @param s The uninitialized state.
  * @param key Buffer containing the key. The buffer must be aligned to at
- * least 4 bytes (depending on the plataform it may or may not work with
+ * least 4 bytes (depending on the platform it may or may not work with
  * unaligned memory). Its size, in bytes, must be bitlength / 8.
  * @param bitlength The size of the key in bits. The initialization procedure
- * can take any ammount from 0 (useless) to 256 bits, but the algorithm only
+ * can take any amount from 0 (useless) to 256 bits, but the algorithm only
  * claim security for 128 bits (16 bytes) keys, and explicitly estates that
  * there is no guarantee of greater security if a bigger key is used. So, just
  * stick with 128.

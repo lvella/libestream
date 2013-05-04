@@ -15,13 +15,13 @@ typedef struct
 /** Initialize the Rabbit master state with key.
  *
  * The state initialized by this function can be used directly in the
- * encryption/decryption process, or can be used to generate other encription
+ * encryption/decryption process, or can be used to generate other encryption
  * states based on an Initialization Vector (IV). See function
  * rabbit_init_iv().
  *
- * @param state The unintialized state.
+ * @param state The uninitialized state.
  * @param key 16 bytes buffer of the 128-bit key. The buffer must be aligned
- * to at least 4 bytes (depending on the plataform it may or may not work with
+ * to at least 4 bytes (depending on the platform it may or may not work with
  * unaligned memory).
  */
 void rabbit_init_key(rabbit_state *state, const uint8_t *key);

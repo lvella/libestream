@@ -21,10 +21,10 @@ typedef struct
  *
  * Notice: an IV should never be reused.
  *
- * @param state The unintialized state, it will be ready to
+ * @param state The uninitialized state, it will be ready to
  * encryption/decryption afterwards.
  * @param key 16 bytes buffer containing the 128-bit key. The buffer must
- * be aligned to at least 4 bytes (depending on the plataform it may or may
+ * be aligned to at least 4 bytes (depending on the platform it may or may
  * not work with unaligned memory).
  * @param iv 16 bytes buffer containing the IV.
  */
