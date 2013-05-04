@@ -5,7 +5,7 @@
 // Input: state - the state used to generate the keystream
 //        key - Key to use to initialize the state 
 //        len - length of key in bytes  
-void ksa(unsigned char state[], unsigned char key[], int len)
+void ksa(unsigned char state[], const unsigned char key[], int len)
 {
    int i,j=0,t; 
    

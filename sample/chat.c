@@ -8,6 +8,7 @@
 #include <time.h>
 #include <errno.h>
 #include <pthread.h>
+#include <assert.h>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -179,6 +180,8 @@ static void run_communication()
   /* IV generation/exchange and initialization of cipher states.
    * Note that an IV must *NEVER* be reused. */
   {
+    ssize_t ret;
+
     /* Master state, initialized with the key. */
     sosemanuk_master_state master_state;
     sosemanuk_init_key(&master_state, key, 128);
@@ -208,7 +211,8 @@ static void run_communication()
       for(i = 0; i < 4; ++i)
 	iv[i] = htole32(rand());
 
-      write(sock, iv, 16);
+      ret = write(sock, iv, 16);
+      assert(ret == 16);
       buffered_init_header(&outbound.buffered.header, SOSEMANUK);
       sosemanuk_init_iv(&outbound.buffered.state, &master_state, (uint8_t*)&iv[0]);
     }
@@ -216,7 +220,8 @@ static void run_communication()
     /* Receive inbound IV and setup state. */
     {
       uint8_t iv[16];
-      read(sock, iv, 16);
+      ret = read(sock, iv, 16);
+      assert(ret == 16);
       buffered_init_header(&inbound.buffered.header, SOSEMANUK);
       sosemanuk_init_iv(&inbound.buffered.state, &master_state, iv);
     }

@@ -35,7 +35,7 @@ timing_end(const char *context)
 static void
 rc4_test() 
 {
-  void ksa(unsigned char state[], unsigned char key[], int len);
+  void ksa(unsigned char state[], const unsigned char key[], int len);
   void prga(unsigned char state[], unsigned char out[], int len);
 
   unsigned char state[256], stream[4096];
