@@ -159,7 +159,7 @@ static void
 init_salsa20_8(salsa20_state *state, uint8_t* key,
 	       uint8_t* iv, size_t keysize)
 {
-  salsa20_state master;
+  salsa20_master_state master;
   salsa20_init_key(&master, SALSA20_8, key,
 		   keysize == 16 ? SALSA20_128_BITS : SALSA20_256_BITS);
   salsa20_init_iv(state, &master, iv);
@@ -169,7 +169,7 @@ static void
 init_salsa20_12(salsa20_state *state, uint8_t* key,
 	       uint8_t* iv, size_t keysize)
 {
-  salsa20_state master;
+  salsa20_master_state master;
   salsa20_init_key(&master, SALSA20_12, key,
 		   keysize == 16 ? SALSA20_128_BITS : SALSA20_256_BITS);
   salsa20_init_iv(state, &master, iv);
@@ -179,7 +179,7 @@ static void
 init_salsa20_20(salsa20_state *state, uint8_t* key,
 	       uint8_t* iv, size_t keysize)
 {
-  salsa20_state master;
+  salsa20_master_state master;
   salsa20_init_key(&master, SALSA20_20, key,
 		   keysize == 16 ? SALSA20_128_BITS : SALSA20_256_BITS);
   salsa20_init_iv(state, &master, iv);

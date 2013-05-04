@@ -106,7 +106,7 @@ salsa20_hash(char drounds, const uint32_t *in, uint32_t *out)
 }
 
 void
-salsa20_init_key(salsa20_state *state, salsa20_variant variant,
+salsa20_init_key(salsa20_master_state *state, salsa20_variant variant,
 		 const uint8_t *key, salsa20_key_size key_size)
 {
   int i;
@@ -119,8 +119,8 @@ salsa20_init_key(salsa20_state *state, salsa20_variant variant,
     k32[i] = pack_littleendian(&key[i*4]);
 #endif
 
-  state->variant = variant;
-  uint32_t *s = state->hash_input.bit32;
+  state->incomplete_state.variant = variant;
+  uint32_t *s = state->incomplete_state.hash_input.bit32;
 
   static const uint32_t consts[2][4] = 
     {{0x3120646e, 0x79622d36}, /* Tau, 128-bits */
@@ -136,10 +136,10 @@ salsa20_init_key(salsa20_state *state, salsa20_variant variant,
 }
 
 void
-salsa20_init_iv(salsa20_state *iv_state, const salsa20_state *master,
+salsa20_init_iv(salsa20_state *iv_state, const salsa20_master_state *master,
 		const uint8_t *iv)
 {
-  memcpy(iv_state, master, sizeof(salsa20_state));
+  memcpy(iv_state, &master->incomplete_state, sizeof(salsa20_state));
 
 #ifdef LITTLE_ENDIAN
   iv_state->hash_input.bit64[3] = *(uint64_t*)iv;

@@ -111,7 +111,8 @@ sosemanuk_test()
 static void
 salsa20_test(salsa20_variant variant)
 {
-  salsa20_state mstate, ivstate;
+  salsa20_master_state mstate;
+  salsa20_state ivstate;
   unsigned char stream[4096];
   int i;
 
