@@ -2,13 +2,15 @@
 CFLAGS = -Ofast -flto -DNDEBUG
 #CFLAGS = -g
 
-# Uncomment if the target system allows for unalligned memory access (like x86, unlike ARM):
+# Uncomment if the target system allows for unalligned memory
+# access (like x86, unlike ARM):
 #CFLAGS += -DUNALIGNED_ACCESS_ALLOWED
 
 # Uncomment if you are building for little-endian machines:
 #CFLAGS += -DLITTLE_ENDIAN
 
 CC = gcc
+AR = ar
 
 LIB_OBJS := buffered.o hc-128.o protocol.o rabbit.o salsa20.o sosemanuk.o util.o umac.o
 TESTS := algorithms_test buffering_test umac_test performance_test
@@ -16,7 +18,7 @@ TESTS := algorithms_test buffering_test umac_test performance_test
 .PHONY : all tests clean
 
 libestream.a: $(LIB_OBJS)
-	ar rcs libestream.a $(LIB_OBJS)
+	$(AR) rcs libestream.a $(LIB_OBJS)
 
 -include $(LIB_OBJS:.o=.d)
 
