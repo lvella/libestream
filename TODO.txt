@@ -1,5 +1,8 @@
+- Bug: Chat running on ARM fails to verify message received.
+
 - Rename IV to nonce throughout all project.
 
+- Run tests on a big-endian machine (or in qemu simulating MIPS, at least).
 - Better testing on buffered_skip().
 - Test of sum_mod_p128 with y == out.
 - Find some way to test UMAC better. Reference implementation seems broken
