@@ -483,7 +483,7 @@ uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, siz
   } else {
     /* Memory must be aligned before casting to 32bits, so copy it to the aligned buffer
      * before using. */
-    assert(state->common.buffer_len == 0);
+    assert(!(processed + 32 <= len) || (state->common.buffer_len == 0));
     for(; processed + 32 <= len; processed += 32) {
       memcpy(state->common.buffer, input + processed, 32);
       uhash_step_iterations(key, state, state->common.buffer);
