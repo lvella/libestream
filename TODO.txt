@@ -1,5 +1,3 @@
-- Verify if the following bug has been fixed: Chat running on ARM fails to verify message received.
-
 - Rename IV to nonce throughout all project.
 
 - Run tests on a big-endian machine (or in qemu simulating MIPS, at least).
