@@ -475,7 +475,7 @@ uhash_update(const uhash_key *key, uhash_state *state, const uint8_t *input, siz
   }
 
   /* For the rest of the input, process in 32 bytes chunks. */
-  if(UNALIGNED_ACCESS || ((uintptr_t)(input + processed) & 3u) == 0) {
+  if(UNALIGNED_ACCESS || is_aligned(input + processed)) {
     /* If the machine supports unaligned memory access, or the memory happens to be aligned,
      * use the input pointer directly. */
     for(; processed + 32 <= len; processed += 32)

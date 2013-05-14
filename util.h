@@ -18,3 +18,5 @@ uint32_t pack_littleendian(const uint8_t *v);
 void unpack_littleendian(uint32_t value, uint8_t *v);
 
 size_t min(size_t a, size_t b);
+
+int is_aligned(const void *ptr);

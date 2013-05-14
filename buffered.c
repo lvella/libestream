@@ -49,12 +49,6 @@ buffered_reset(buffered_state *state_header)
   state_header->available_count = 0;
 }
 
-static int
-is_aligned(const void *ptr)
-{
-  return ((unsigned long)ptr & 3u) == 0; /* Multiple of 4 */
-}
-
 static uint8_t *
 memxor(uint8_t *dest, const uint8_t *mask, size_t n)
 {

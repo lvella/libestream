@@ -39,3 +39,9 @@ min(size_t a, size_t b)
 {
   return (a < b) ? a : b;
 }
+
+int
+is_aligned(const void *ptr)
+{
+  return ((unsigned)ptr & 3u) == 0; /* Multiple of 4 */
+}
