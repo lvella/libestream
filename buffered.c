@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include <string.h>
+#include "util.h"
 
 #include "buffered.h"
 
@@ -49,7 +50,7 @@ buffered_reset(buffered_state *state_header)
 }
 
 static int
-is_aligned(void *ptr)
+is_aligned(const void *ptr)
 {
   return ((unsigned long)ptr & 3u) == 0; /* Multiple of 4 */
 }
@@ -58,7 +59,7 @@ static uint8_t *
 memxor(uint8_t *dest, const uint8_t *mask, size_t n)
 {
   size_t i;
-  if(is_aligned(dest))
+  if(UNALIGNED_ACCESS || (is_aligned(dest) && is_aligned(mask)))
     {
       uint64_t *d64 = (uint64_t*)dest;
       uint64_t *m64 = (uint64_t*)mask;

@@ -1,4 +1,4 @@
-- Bug: Chat running on ARM fails to verify message received.
+- Verify if the following bug has been fixed: Chat running on ARM fails to verify message received.
 
 - Rename IV to nonce throughout all project.
 
